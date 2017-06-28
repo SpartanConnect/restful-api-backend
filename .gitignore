@@ -1,0 +1,7 @@
+# Logs
+npm-debug.log
+
+# Unwanted folders
+/node_modules/
+
+.DS_Store
