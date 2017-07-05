@@ -1,19 +1,30 @@
 // Utility functions for announcements
-var databaseConnection = require('./database-development.js');
+var databaseConnection = require('./../database-development.js');
+var mysql=require('mysql');
 
 
 // GETTERS
 // Gets announcements
 
 exports.getAnnouncements = function(approval, startDate, endDate) {
-    
-}
 
-exports.getCurrentAnnouncements = function() {
 }
 
 exports.getAnnouncementById = function(id) {
+    var sqlTemplate='SELECT * FROM announcements WHERE id=?;';
+    var sqlInserts=[id];
+    var sqlStatement=mysql.format(sqlTemplate,sqlInserts);
+    databaseConnection.query(sqlStatement, function (error, results) {
+            if (error) throw error;
+            return results;
+        }
+    );
 
+    //databaseConnection.query('SELECT * FROM announcements WHERE id = 5', function(error, result) {
+    //        if (error) throw error;
+    //        return result[0];
+    //    }
+    //);
 }
 
 exports.getUserAnnouncements = function(userId, approval) {

@@ -1,5 +1,4 @@
 //Nick 7/3/17: For now this is just a clone of Jeffrey's CONSTANTS_example.js file. It will likely evolve in the future.
-
 var CONSTANTS = require('./constants.js');
 var SECRETS = require('./secret.js');
 
