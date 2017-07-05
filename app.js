@@ -4,33 +4,11 @@ var logger = require('morgan');
 var bodyParser = require('body-parser');
 var mysql = require('mysql');
 
-// --- Require Spartan Connect Modules here! ---
-var databaseConnection = require('./database-development.js');
-var announcements = require('./utilities/announcements.js');
-
 // --- Sample Query ---
-//To query, simply import the database module, and call query(String query, function(error, result) {}) on the module.
-//databaseConnection.query('SELECT * FROM announcements WHERE id = 5', function(error, result) {
-//    if (error) throw error;
-//    console.log(result[0]);
-//});
-
-announcements.getAnnouncementById(2).then(function(result) {
-    console.log(result);
-});
-
-/*id='5';
-var sqlTemplate='SELECT * FROM announcements WHERE id=?;';
-var sqlInserts=[id];
-var sqlStatement=mysql.format(sqlTemplate,sqlInserts);
-databaseConnection.query(sqlStatement, function (error, results) {
-        console.log(results);
-    }
-);*/
-
-
-
-//console.log(announcements.getAnnouncementById(5));
+// var announcementsUtility = require('./utilities/announcements.js'); 
+// announcementsUtility.getAnnouncementById(2).then(function(result) {
+//     console.log(result);
+// });
 
 // --- Declare API routes here! ---   
 var announcements = require('./routes/announcements');

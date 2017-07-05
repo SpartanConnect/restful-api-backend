@@ -1,10 +1,7 @@
-// Utility functions for announcements
 var databaseConnection = require('./../database-development.js');
 var mysql = require('mysql');
 
 // GETTERS
-// Gets announcements
-
 exports.getAnnouncements = function(approval, startDate, endDate) {
 
 }
@@ -22,20 +19,6 @@ exports.getAnnouncementById = function(id) {
     });
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 exports.getUserAnnouncements = function(userId, approval) {
     // IDEA: use Babel or TS for ES6 implementation of optional arguments
     if (typeof approval === 'undefined') approval = 0;
@@ -43,7 +26,6 @@ exports.getUserAnnouncements = function(userId, approval) {
 }
 
 // SETTERS
-// Sets announcements
 
 //Nick 2017/07/04 Should we just pass it an announcement object which it then handles?
 exports.createAnnouncement = function(title, description, creatorId, startDate, endDate, urgent, approved) {
