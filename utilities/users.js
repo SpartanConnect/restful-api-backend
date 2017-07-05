@@ -5,6 +5,7 @@ var databaseConnection = require('./database-development.js');
 // Gets users
 
 exports.getUser = function(id) {
+    //SELECT * FRON users WHERE id=id;
 }
 
 exports.getUserEmail = function(id) {

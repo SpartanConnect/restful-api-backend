@@ -30,17 +30,23 @@ exports.getAnnouncementById = function(id) {
 exports.getUserAnnouncements = function(userId, approval) {
     // IDEA: use Babel or TS for ES6 implementation of optional arguments
     if (typeof approval === 'undefined') approval = 0;
+    //SELECT * FROM announcements WHERE creatorID=id
 }
 
 // SETTERS
 // Sets announcements
 
-exports.createAnnouncement = function(title, description, userId, startDate, endDate, urgency, approval) {
+//Nick 2017/07/04 Should we just pass it an announcement object which it then handles?
+exports.createAnnouncement = function(title, description, creatorId, startDate, endDate, urgent, approved) {
     if (typeof urgency === 'undefined') approval = 0;
     if (typeof approval === 'undefined') approval = 1;
+
+    //INSERT INTO announcements (title, description, creatorId, startDate,endDate, urgent, approed, timeSubmitted) values (title, description, creatorId,startDate,endDate,urgent,approved,NOW())
+
 }
 
 exports.updateAnnouncementApproval = function(id, approval) {
+    //UPDATE announcements (approved) VALUES (approval) WHERE id=id
 }
 
 exports.updateAnnouncementUrgency = function(id, urgency) {
