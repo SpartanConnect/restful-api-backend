@@ -7,9 +7,9 @@ var mysql = require('mysql');
 
 // --- mySQL Connection Variables ---
 var connection = mysql.createConnection({
-    host: CONSTANTS.SQL_DB_HOST,
-    port: CONSTANTS.SQL_DB_PORT,
-    user: CONSTANTS.SQL_DB_USER,
+    host: SECRETS.SQL_DB_HOST,
+    port: SECRETS.SQL_DB_PORT,
+    user: SECRETS.SQL_DB_USER,
     password: SECRETS.SQL_DB_PASSWORD,
     database: CONSTANTS.SQL_DB_NAME
 });

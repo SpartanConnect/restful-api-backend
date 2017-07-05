@@ -1,10 +1,12 @@
 // Utility functions for announcements
+var databaseConnection = require('./database-development.js');
+
 
 // GETTERS
 // Gets announcements
 
 exports.getAnnouncements = function(approval, startDate, endDate) {
-  
+    
 }
 
 exports.getCurrentAnnouncements = function() {

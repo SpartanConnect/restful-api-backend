@@ -1,4 +1,5 @@
 // Utility functions for users
+var databaseConnection = require('./database-development.js');
 
 // GETTERS
 // Gets users
