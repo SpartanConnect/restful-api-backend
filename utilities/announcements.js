@@ -1,7 +1,6 @@
 // Utility functions for announcements
 var databaseConnection = require('./../database-development.js');
-var mysql=require('mysql');
-
+var mysql = require('mysql');
 
 // GETTERS
 // Gets announcements
@@ -11,21 +10,31 @@ exports.getAnnouncements = function(approval, startDate, endDate) {
 }
 
 exports.getAnnouncementById = function(id) {
-    var sqlTemplate='SELECT * FROM announcements WHERE id=?;';
-    var sqlInserts=[id];
-    var sqlStatement=mysql.format(sqlTemplate,sqlInserts);
-    databaseConnection.query(sqlStatement, function (error, results) {
-            if (error) throw error;
-            return results;
-        }
-    );
-
-    //databaseConnection.query('SELECT * FROM announcements WHERE id = 5', function(error, result) {
-    //        if (error) throw error;
-    //        return result[0];
-    //    }
-    //);
+    return new Promise(function(resolve) {
+        var statement = 'SELECT * FROM announcements WHERE id = ' + databaseConnection.escape(id) + ';';
+        databaseConnection.query(statement, function (error, result) {
+            if (error) {
+                throw error;
+            } else {
+                resolve(result);
+            }
+        });
+    });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 exports.getUserAnnouncements = function(userId, approval) {
     // IDEA: use Babel or TS for ES6 implementation of optional arguments

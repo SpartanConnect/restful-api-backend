@@ -2,10 +2,11 @@ var express = require('express');
 var path = require('path');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
+var mysql = require('mysql');
 
 // --- Require Spartan Connect Modules here! ---
 var databaseConnection = require('./database-development.js');
-var announcements=require('./utilities/announcements.js');
+var announcements = require('./utilities/announcements.js');
 
 // --- Sample Query ---
 //To query, simply import the database module, and call query(String query, function(error, result) {}) on the module.
@@ -14,12 +15,9 @@ var announcements=require('./utilities/announcements.js');
 //    console.log(result[0]);
 //});
 
-var mysql=('./node_modules/mysql/index.js');
-
-var sql = "SELECT * FROM ?? WHERE ?? = ?";
-var inserts = ['users', 'id', 2];
-sql = mysql.format(sql, inserts);
-console.log(sql);
+announcements.getAnnouncementById(2).then(function(result) {
+    console.log(result);
+});
 
 /*id='5';
 var sqlTemplate='SELECT * FROM announcements WHERE id=?;';
