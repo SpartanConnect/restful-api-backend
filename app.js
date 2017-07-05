@@ -8,7 +8,7 @@ var databaseConnection = require('./database-development.js');
 
 // --- Sample Query ---
 // To query, simply import the database module, and call query(String query, function(error, result) {}) on the module.
-databaseConnection.query('SELECT * FROM test WHERE id = 3', function(error, result) {
+databaseConnection.query('SELECT * FROM announcements WHERE id = 3', function(error, result) {
     if (error) throw error;
     console.log(result[0]);
 });

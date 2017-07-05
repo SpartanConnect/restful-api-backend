@@ -1,5 +1,6 @@
 # Credential Files
-database-development.js
+# database-development.js
+secret.js
 
 # Logs
 npm-debug.log
