@@ -1,5 +1,6 @@
 var databaseConnection = require('./../database-development.js');
 var mysql = require('mysql');
+var database = require ('./database.js');
 
 // GETTERS
 exports.getAnnouncements = function(approval, startDate, endDate) {
@@ -7,7 +8,8 @@ exports.getAnnouncements = function(approval, startDate, endDate) {
 }
 
 exports.getAnnouncementById = function(id) {
-    return new Promise(function(resolve) {
+    return database('SELECT * FROM announcements WHERE id = :id',{id:id});
+    /*return new Promise(function(resolve) {
         var statement = 'SELECT * FROM announcements WHERE id = ' + databaseConnection.escape(id) + ';';
         databaseConnection.query(statement, function (error, result) {
             if (error) {
@@ -16,7 +18,7 @@ exports.getAnnouncementById = function(id) {
                 resolve(result);
             }
         });
-    });
+    });*/
 }
 
 exports.getUserAnnouncements = function(userId, approval) {
