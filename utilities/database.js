@@ -13,6 +13,7 @@ databaseConnection.config.queryFormat = function (query, values) {
 
 
  module.exports = function(query, args) {
+     //console.log("I've been hit!")
      return new Promise(function(resolve) {
          databaseConnection.query(query, args, function (error, result) {
              if (error) {

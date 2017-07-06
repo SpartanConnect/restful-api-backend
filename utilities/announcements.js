@@ -1,4 +1,3 @@
-var databaseConnection = require('./../database-development.js');
 var mysql = require('mysql');
 var database = require ('./database.js');
 
@@ -8,23 +7,7 @@ exports.getAnnouncements = function(approval, startDate, endDate) {
 }
 
 exports.getAnnouncementById = function(id) {
-    return database('SELECT * FROM announcements WHERE id = :id',{id:id});
-    /*return new Promise(function(resolve) {
-        var statement = 'SELECT * FROM announcements WHERE id = ' + databaseConnection.escape(id) + ';';
-        databaseConnection.query(statement, function (error, result) {
-            if (error) {
-                throw error;
-            } else {
-                resolve(result);
-            }
-        });
-    });*/
-}
-
-exports.getUserAnnouncements = function(userId, approval) {
-    // IDEA: use Babel or TS for ES6 implementation of optional arguments
-    if (typeof approval === 'undefined') approval = 0;
-    //SELECT * FROM announcements WHERE creatorID=id
+    return database('SELECT * FROM announcements WHERE id = :id;',{id:id});
 }
 
 // SETTERS

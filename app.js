@@ -5,13 +5,15 @@ var bodyParser = require('body-parser');
 var mysql = require('mysql');
 
 // --- Sample Query ---
-// var announcementsUtility = require('./utilities/announcements.js'); 
+// var announcementsUtility = require('./utilities/announcements.js');
 // announcementsUtility.getAnnouncementById(2).then(function(result) {
 //     console.log(result);
 // });
 
 // --- Declare API routes here! ---   
 var announcements = require('./routes/announcements');
+var users = require('./routes/users')
+
 
 var app = express();
 
@@ -22,6 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // --- Route API calls here! ---
 app.use('/api', announcements);
+app.use('/api', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
