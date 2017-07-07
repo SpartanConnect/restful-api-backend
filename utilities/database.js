@@ -11,17 +11,16 @@ databaseConnection.config.queryFormat = function (query, values) {
   }.bind(this));
 };
 
+exports.query = function(query, args) {
+    return new Promise(function(resolve) {
+        databaseConnection.query(query, args, function(error, result) {
+            if(error) {
+                throw error;
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
 
- module.exports = function(query, args) {
-     //console.log("I've been hit!")
-     return new Promise(function(resolve) {
-         databaseConnection.query(query, args, function (error, result) {
-             if (error) {
-                 throw error;
-             } else {
-                 resolve(result);
-             }
-         });
-     });
-
- }
+module.exports = exports;
