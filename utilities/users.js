@@ -7,7 +7,7 @@ var database = require('./database')
 exports.getUser = function(id) {
     //SELECT * FRON users WHERE id=id;
     if (typeof id === 'undefined') return Promise.resolve({});
-    console.log('get user hit');
+    //console.log('get user hit');
     userSql = database('SELECT * FROM users WHERE id=:id', {id:id});
     postCountApprovedSql = exports.getUserPostCount(id,1);
     postCountUnapprovedSql = exports.getUserPostCount(id,0);
@@ -30,20 +30,20 @@ exports.getUserAnnouncements = function(userId, status) {
 }
 
 exports.getUserPostCount = function(userId, status) {
-    console.log('user post counter hit');
+    //console.log('user post counter hit');
     if (typeof status !== 'undefined') return database('SELECT COUNT (id) FROM announcements WHERE creatorId=:userId AND status=:status', {userId:userId,status:status});
     return database('SELECT COUNT (id) FROM announcements WHERE creatorId=:userId',{userId:userId});
 }
 
 exports.userPromiseHandler = function(promiseIn) {
-    if (typeof promiseIn[0][0] === 'undefined') {console.log("kill myself"); return {};};
+    if (typeof promiseIn[0][0] === 'undefined')  return {};
     let userObject = promiseIn[0][0];
     userObject.postCounts = {
-        approvedCount : promiseIn[1][0],
-        unapprovedCount : promiseIn[2][0],
-        deniedCount : promiseIn[3][0],
-        removedCount : promiseIn[4][0],
-        totalCount : promiseIn[5][0]
+        approvedCount : promiseIn[1][0]['COUNT (id)'],
+        unapprovedCount : promiseIn[2][0]['COUNT (id)'],
+        deniedCount : promiseIn[3][0]['COUNT (id)'],
+        removedCount : promiseIn[4][0]['COUNT (id)'],
+        totalCount : promiseIn[5][0]['COUNT (id)']
     };
     return userObject;
 };
