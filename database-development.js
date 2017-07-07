@@ -1,10 +1,6 @@
-var CONSTANTS = require('./constants.js');
-var SECRETS = require('./secret.js');
-
 var mysql = require('mysql');
 
 // --- mySQL Connection Variables ---
-console.log(process.env.SQL_DB_NAME);
 var connection = mysql.createConnection({
     host: process.env.SQL_DB_HOST,
     port: process.env.SQL_DB_PORT,

@@ -2,11 +2,11 @@ var mysql = require('mysql');
 
 // --- mySQL Connection Variables ---
 var connection = mysql.createConnection({
-    host: 'localhost',
-    port: '8089',
-    user: 'spartanConnect',
-    password: 'yourPasswordHere',
-    database: 'spartan_connect'
+    host: process.env.SQL_DB_HOST,
+    port: process.env.SQL_DB_PORT,
+    user: process.env.SQL_DB_USER,
+    password: process.env.SQL_DB_PASSWORD,
+    database: process.env.SQL_DB_NAME
 });
 
 connection.connect(function(error) {
