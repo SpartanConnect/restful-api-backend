@@ -19,14 +19,12 @@ exports.getAnnouncements = function(id, status, startDate, endDate) {
         });
     }
 
-    console.log(statement + ';');
-
     return new Promise ((resolve) => {
         database.query(statement + ';', statementParameters).then((idList) => {
             var announcementResults = [];
             var announcementPromises = idList.map((announcementId) => {
                 return exports.getAnnouncementById(announcementId.id).then((data) => {
-                    announcementResults.push(data);
+                    announcementResults.push(data[0]);
                     // We had no other choice..
                     if (announcementResults.length === announcementPromises.length) {
                         resolve(announcementResults);
@@ -38,16 +36,29 @@ exports.getAnnouncements = function(id, status, startDate, endDate) {
 }
 
 exports.getAnnouncementById = function(id) {
-    var announcementSql = database.query('SELECT * FROM announcements WHERE id=:id',{id:id});
-    var tagsSql = database.query('SELECT * FROM tags WHERE id IN (SELECT tagId FROM announcements_tags WHERE announcementId=:id);',{id:id})
+    //console.log('Hit getAnnouncementById');
+    let announcementSqlQuery = database.query('SELECT * FROM announcements WHERE id=:id',{id:id});
+    let tagSqlQuery = database.query('SELECT * FROM tags WHERE id IN (SELECT tagId FROM announcements_tags WHERE announcementId=:id);',{id:id});
+    let creatorSqlQuery = database.query('SELECT * FROM users WHERE id = (SELECT creatorId FROM announcements WHERE id=:id)',{id:id});
+    let adminSqlQuery = database.query('SELECT * FROM users WHERE id = (SELECT adminId FROM announcements WHERE id=:id)',{id:id});
+    //console.log("sent all queries");
     return new Promise ((resolve) => {
-        Promise.all([announcementSql, tagsSql]).then((promiseResult) => {
-            exports.announcementPromiseHandler(promiseResult).then((data) => {
-                /*return*/resolve (data);
-            }).catch(error =>{
-                console.log(error);
-            })
-        });
+        //console.log('Returning new promise');
+        Promise.all([announcementSqlQuery, creatorSqlQuery, adminSqlQuery, tagSqlQuery]).then((promiseResultArray) => {
+            //console.log('This is the promise result array:\n',promiseResultArray);
+            let rawAnnouncementArray = promiseResultArray[0];
+            //console.log('This is the rawAnnouncementArray\n', rawAnnouncementArray);
+            let rawCreatorArray = promiseResultArray[1];
+            //console.log('This is the rawCreatorArray\n', rawAnnouncementArray);
+            let rawAdmin = promiseResultArray[2];
+            //console.log('This is the rawAdmin info\n', rawAdmin);
+            let rawTags = [promiseResultArray[3]];
+            //console.log('This is (hopefully the raw array of tags)\n',rawTags);
+            //console.log('promise results divvied up');
+            resolve (exports.announcementPackager(rawAnnouncementArray, rawCreatorArray, rawAdmin, rawTags));
+        }).catch(error =>{
+            //console.log(error);
+        })
     });
 }
 
@@ -67,33 +78,26 @@ exports.sanitizeInput = function(input) {
 exports.desanitizeInput = function(input) {
 }
 
-exports.announcementPromiseHandler = function(promiseIn) {
-    //console.log('hit announcementPromiseHandler');
-    //console.log('announcementResult on passing to handler\n', promiseIn);
-    var announcementResult = promiseIn[0][0];
-    //console.log('announcementResult before tag declaration\n',announcementResult);
-    announcementResult.tags = promiseIn[1];
-    //console.log('announcementResult after tag declaration\n', announcementResult);
-    //console.log(promiseIn);
-    return new Promise ((resolve) => {
-        //console.log('this should be a announcementResult:', announcementResult);
-        var creatorUser = users.getUser(announcementResult.creatorId);
-        var adminUser = users.getUser(announcementResult.adminId);
-        //console.log('this should be the adminUser id\n', announcementResult.adminId);
-        var promiseInput = [creatorUser];
-        if (typeof adminUser !== 'undefined') promiseInput[1] = adminUser;
-        Promise.all(promiseInput).then((userPromise) => {
-            //console.log('hit promise all for announcement user getting');
-            //console.log('this should be both users information\n',userPromise);
-            announcementResult.creator = userPromise[0];
-            announcementResult.admin = userPromise[1];
-            delete announcementResult.creatorId;
-            delete announcementResult.adminId;
-            /*return*/resolve(announcementResult);
-        }).catch(error =>{
-            console.log(error);
+exports.announcementPackager = function(rawAnnouncementArray, rawUserCreatorArray, rawUserAdminArray, rawTagArrayArray) {
+    //console.log('hit packager');
+    //console.log(rawTagArrayArray);
+    let announcementObject = rawAnnouncementArray.map((rawAnnouncement, announcementIndex) => {
+        if (typeof rawAnnouncement.creatorId !== 'undefined') {
+            rawAnnouncement.creator = rawUserCreatorArray[announcementIndex];
+            delete rawAnnouncement.creatorId;
+        }
+        if (typeof rawAnnouncement.adminId !== 'undefined') {
+            rawAnnouncement.admin = rawUserAdminArray[announcementIndex];
+            delete rawAnnouncement.adminId;
+        }
+        rawAnnouncement.tags = [];
+        rawTagArrayArray[announcementIndex].map((rawTag) => {
+            rawAnnouncement.tags.push(rawTag);
         });
+        return rawAnnouncement;
     });
+    ////console.log(announcementObject);
+    return announcementObject;
 }
 
 module.exports = exports;
