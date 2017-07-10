@@ -1,10 +1,12 @@
-// Utility functions for users
+// Utility functions for tags
+var database = require('./database');
 
 // GETTERS
-// Gets users
+// Gets tags
 
 exports.getTags = function(id) {
-    let tagSql = ''
+    let tagsSqlQuery = 'SELECT * FROM tags';
+    return database.query(tagsSqlQuery);
 }
 
 exports.getTagBySlug = function(id) {
