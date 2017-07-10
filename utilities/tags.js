@@ -5,14 +5,16 @@ var database = require('./database');
 // Gets tags
 
 exports.getTags = function(id) {
-    let tagsSqlQuery = 'SELECT * FROM tags';
-    return database.query(tagsSqlQuery);
+    return database.query('SELECT * FROM tags');
 }
 
 exports.getTagBySlug = function(id) {
 }
 
 exports.getTagById = function(id) {
+    console.log('hit getTagById function');
+    return database.query('SELECT * FROM tags WHERE id=:id',{id:id});
+
 }
 
 exports.getAnnouncementsByTags = function(tagId) {
