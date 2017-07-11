@@ -25,6 +25,7 @@ exports.getUsers = function(id, rank, handle) {
 
     return new Promise ((resolve) => {
         database.query(statement + ';', statementParameters).then((idList) => {
+            if (idList.length === 0) {return resolve ()};
             var userResults = [];
             var userPromises = idList.map((userId) => {
                 return exports.getUserById(userId.id).then((data) => {
