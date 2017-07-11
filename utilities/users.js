@@ -5,6 +5,7 @@ var database = require('./database')
 // Gets users
 
 exports.getUsers = function(id, rank, handle) {
+    //console.log('hit getUsers function');
     var statement = 'SELECT id FROM users';
     var statementParameters = {};
 
@@ -20,21 +21,27 @@ exports.getUsers = function(id, rank, handle) {
         });
     }
 
-    console.log(statement);
+    //console.log(statement);
 
     return new Promise ((resolve) => {
         database.query(statement + ';', statementParameters).then((idList) => {
             var userResults = [];
             var userPromises = idList.map((userId) => {
                 return exports.getUser(userId.id).then((data) => {
-                    userResults.push(data[0]);
+                    //console.log(data);
+                    userResults.push(data);
                     // We had no other choice..
                     if (userResults.length === userPromises.length) {
+                        //console.log('These are the userResults that are resolved by the promise returned by the getUsers function',userResults);
                         resolve(userResults);
                     };
-                });
+                });/*.catch(error => {
+                    console.log(error);
+                });*/
             });
-        });
+        });/*.catch(error => {
+            console.log(error);
+        });*/
     });
 }
 
