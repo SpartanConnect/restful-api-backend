@@ -5,7 +5,7 @@ var announcements = require('../utilities/announcements');
 
 router.get('/announcements/',function (req, res) {
     //console.log('hit router');
-    announcements.getAnnouncements(req.query.id, req.query.status, req.query.startDate, req.query.endDate).then((data) => {
+    announcements.getAnnouncements(req.query.id, req.query.status, req.query.startDate, req.query.endDate, req.query.tagId).then((data) => {
         if (data.length === 1) {
             res.json(data[0]);
         }

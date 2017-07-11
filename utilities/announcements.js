@@ -2,14 +2,14 @@ var database = require('./database');
 var users = require('./users');
 
 // Getter
-exports.getAnnouncements = function(id, status, startDate, endDate) {
+exports.getAnnouncements = function(id, status, startDate, endDate, tagId) {
     var statement = 'SELECT id FROM announcements';
-    var statementParameters = {}
+    var statementParameters = {};
 
-    if(typeof id != 'undefined') { statementParameters.id = id; }
-    if(typeof status != 'undefined') { statementParameters.status = status; }
-    if(typeof startDate != 'undefined') { statementParameters.startDate = startDate; }
-    if(typeof endDate != 'undefined') { statementParameters.endDate = endDate; }
+    if(typeof id != 'undefined') { statementParameters.id = id; };
+    if(typeof status != 'undefined') { statementParameters.status = status; };
+    if(typeof startDate != 'undefined') { statementParameters.startDate = startDate; };
+    if(typeof endDate != 'undefined') { statementParameters.endDate = endDate; };
 
     if(Object.keys(statementParameters).length != 0) {
         statement += ' WHERE ';
@@ -18,6 +18,16 @@ exports.getAnnouncements = function(id, status, startDate, endDate) {
             statement += item + ' = :' + item;
         });
     }
+
+    if (typeof tagId !== 'undefined') {
+        if (Object.keys(statementParameters).length !== 0) {
+            statement += ' AND ';
+        }
+        statement += ' WHERE id IN (SELECT announcementId FROM announcements_tags WHERE tagId=:tagId) ';
+        statementParameters.tagId = tagId;
+    }
+
+    console.log(statement);
 
     return new Promise ((resolve) => {
         database.query(statement + ';', statementParameters).then((idList) => {

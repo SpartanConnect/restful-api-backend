@@ -18,11 +18,4 @@ router.get('/tags/:slug', function (req, res) {
     });
 });
 
-router.get('/tags/:id/announcements', function (req, res) {
-    tagUtility.getAnnouncementsByTags(req.params.id).then((announcementObjectArray) => {
-        res.json(announcementObjectArray);
-        res.end();
-    });
-});
-
 module.exports = router;
