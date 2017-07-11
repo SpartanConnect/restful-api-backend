@@ -38,8 +38,6 @@ exports.getUsers = function(id, rank, handle) {
     });
 }
 
-}
-
 exports.getUser = function(id) {
     //SELECT * FRON users WHERE id=id;
     if (typeof id === 'undefined') return Promise.resolve({});
