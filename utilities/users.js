@@ -20,6 +20,8 @@ exports.getUsers = function(id, rank, handle) {
         });
     }
 
+    console.log(statement);
+
     return new Promise ((resolve) => {
         database.query(statement + ';', statementParameters).then((idList) => {
             var userResults = [];
