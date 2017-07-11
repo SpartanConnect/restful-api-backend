@@ -48,7 +48,7 @@ exports.getUsers = function(id, rank, handle) {
 
 exports.getUserById = function(id) {
     //SELECT * FRON users WHERE id=id;
-    if (typeof id === 'undefined') return Promise.resolve({});
+    if (typeof id === 'undefined') return Promise.resolve();
     //console.log('get user hit');
     userSql = database.query('SELECT * FROM users WHERE id=:id', {id:id});
     postCountApprovedSql = exports.getUserPostCount(id,1);
