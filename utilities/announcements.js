@@ -44,7 +44,7 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
 
 
 
-    console.log(statement);
+    //console.log(statement);
 
     return new Promise ((resolve) => {
         database.query(statement + ';', statementParameters).then((idList) => {
