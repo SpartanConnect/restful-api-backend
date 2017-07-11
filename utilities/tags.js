@@ -5,7 +5,7 @@ var announcementsUtility = require('./announcements');
 // GETTERS
 // Gets tags
 
-exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibility, name) {
+exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibility, slug) {
     var statement = 'SELECT * FROM tags';
     var statementParameters = {};
 
@@ -14,7 +14,7 @@ exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibili
     if(typeof minRequestRank != 'undefined') { statementParameters.minUserLevelRequest = minRequestRank; };
     if(typeof parentId != 'undefined') { statementParameters.parentId = parentId; };
     if(typeof visibility != 'undefined') { statementParameters.visibility = visibility; }
-    if(typeof name != 'undefined') { statementParameters.name = name; }
+    if(typeof slug != 'undefined') { statementParameters.slug = slug; }
 
     if(Object.keys(statementParameters).length != 0) {
         statement += ' WHERE ';

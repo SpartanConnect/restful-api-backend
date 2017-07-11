@@ -5,7 +5,7 @@ var tagUtility = require('../utilities/tags');
 var announcementRoutes = require('./announcements');
 
 function tagRequestHandler (req,res) {
-    tagUtility.getTags(req.query.id, req.query.minRequestRank, req.query.minAssignRank, req.query.parentId, req.query.visible, req.query.name).then ((tagObjectArray) => {
+    tagUtility.getTags(req.query.id, req.query.minRequestRank, req.query.minAssignRank, req.query.parentId, req.query.visible, req.query.slug).then ((tagObjectArray) => {
         if (typeof tagObjectArray[0]==='undefined') {
             res.json();
         }
