@@ -5,7 +5,7 @@ var announcementsUtility = require('./announcements');
 // GETTERS
 // Gets tags
 
-exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibility) {
+exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibility, slug) {
     var statement = 'SELECT * FROM tags';
     var statementParameters = {};
 
@@ -13,7 +13,8 @@ exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibili
     if(typeof minRequestRank != 'undefined') { statementParameters.minRequestRank = minRequestRank; };
     if(typeof minRequestRank != 'undefined') { statementParameters.minAssignRank = minAssignRank; };
     if(typeof parentId != 'undefined') { statementParameters.parentId = parentId; };
-    if(typeof visibility != 'undefined') { statementParameters.visibility = visibility; };
+    if(typeof visibility != 'undefined') { statementParameters.visibility = visibility; }
+    if(typeof slug != 'undefined') { statementParameters.slug = slug; }
 
     if(Object.keys(statementParameters).length != 0) {
         statement += ' WHERE ';
@@ -22,14 +23,10 @@ exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibili
             statement += item + ' = :' + item;
         });
     }
-    
+
     //console.log(statement);
 
     return database.query(statement, statementParameters);
-}
-
-exports.getTagBySlug = function(slug) {
-    //return database.query('SELECT * FROM tags WHERE slug=:slug',{slug:slug});
 }
 
 exports.getTagById = function(id) {
