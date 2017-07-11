@@ -2,7 +2,7 @@ var database = require('./database');
 var users = require('./users');
 
 // Getter
-exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creatorId) {
+exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creatorId, adminId) {
     var statement = 'SELECT id FROM announcements';
     var statementParameters = {};
 
@@ -12,6 +12,7 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
     if(typeof endDate != 'undefined') { statementParameters.endDate = endDate; };
     if(typeof tagId != 'undefined') { statementParameters.tagId = tagId; };
     if(typeof creatorId != 'undefined') { statementParameters.creatorId = creatorId; };
+    if(typeof adminId != 'undefined') { statementParameters.adminId = adminId; };
 
     if(Object.keys(statementParameters).length != 0) {
         statement += ' WHERE ';
@@ -29,13 +30,16 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
         statementParameters.tagId = tagId;
     }
 
-    console.log(statement);
+    //console.log(statement);
 
     return new Promise ((resolve) => {
         database.query(statement + ';', statementParameters).then((idList) => {
+            if (idList.length === 0) {return resolve ()};
+
             var announcementResults = [];
             var announcementPromises = idList.map((announcementId) => {
                 return exports.getAnnouncementById(announcementId.id).then((data) => {
+                    //console.log('This is the data from the getAnnouncementById, which should be blank',data);
                     announcementResults.push(data[0]);
                     // We had no other choice..
                     if (announcementResults.length === announcementPromises.length) {
@@ -57,6 +61,7 @@ exports.getAnnouncementById = function(id) {
     return new Promise ((resolve) => {
         //console.log('Returning new promise');
         Promise.all([announcementSqlQuery, tagSqlQuery]).then((announcementResultArray) => {
+            if (typeof announcementResultArray[0][0] === 'undefined') {return resolve()};
             let rawAnnouncementArray = announcementResultArray[0];
             let creatorDatabaseQuery = users.getUserById(rawAnnouncementArray[0].creatorId);
             let adminDatabaseQuery = users.getUserById(rawAnnouncementArray[0].adminId);

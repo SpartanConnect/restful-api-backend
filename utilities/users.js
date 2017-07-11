@@ -57,6 +57,7 @@ exports.getUserById = function(id) {
     postCountTotalSql = exports.getUserPostCount(id);
     return new Promise((resolve) => {
         Promise.all([userSql,postCountApprovedSql,postCountUnapprovedSql,postCountDeniedSql,postCountRemovedSql,postCountTotalSql]).then((userPromise) => {
+            if (typeof userPromise[0][0] === 'undefined') {resolve(0)};
             /*return*/ resolve (exports.userPromiseHandler(userPromise));
         }).catch(error =>{
             console.log(error);

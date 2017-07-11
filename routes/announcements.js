@@ -3,31 +3,27 @@ var router = express.Router();
 
 var announcements = require('../utilities/announcements');
 
-router.get('/announcements/',function (req, res) {
-    //console.log('hit router');
-    announcements.getAnnouncements(req.query.id, req.query.status, req.query.startDate, req.query.endDate, req.query.tagId, req.query.creatorId).then((data) => {
-        console.log('This should be our data out from the routes page:\n',data);
-        if (data.length === 1) {
+function getAnnouncementHandler (req, res) {
+    announcements.getAnnouncements((req.query.id ? req.query.id : req.params.id), req.query.status, req.query.startDate, req.query.endDate, req.query.tagId, req.query.creatorId, req.query.adminId).then((data) => {
+        //console.log('This should be our data out from the routes page:\n',data);
+        if (typeof data==='undefined') {
+            res.json();
+        }
+        else if (data.length === 1) {
             res.json(data[0]);
         }
-        else {
+        else
+        {
             res.json(data);
         }
         res.end();
     }).catch(error => {
-        console.log(error);
-    })
-});
-
-router.get('/announcements/:id', function(req, res) {
-    //console.log('hit router!');
-    announcements.getAnnouncementById(req.params.id).then((announcementObject) => {
-        //console.log('got to announcemenObject returning')
-        res.json(announcementObject[0]);
-        res.end();
-    }).catch(error =>{
-        console.log(error);
+    console.log(error);
     });
-});
+};
+
+router.get('/announcements/', getAnnouncementHandler);
+
+router.get('/announcements/:id', getAnnouncementHandler);
 
 module.exports = router;
