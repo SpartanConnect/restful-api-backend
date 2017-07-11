@@ -1,5 +1,9 @@
 # Credential Files
-database-development.js
+nodatabase-development.js
+secret.js
+
+#Env file
+.env
 
 # Logs
 npm-debug.log

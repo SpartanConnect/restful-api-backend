@@ -2,19 +2,19 @@ var express = require('express');
 var path = require('path');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
-
-// --- Require Spartan Connect Modules here! ---
-var databaseConnection = require('./database-development.js');
+var mysql = require('mysql');
 
 // --- Sample Query ---
-// To query, simply import the database module, and call query(String query, function(error, result) {}) on the module.
-databaseConnection.query('SELECT * FROM test WHERE id = 3', function(error, result) {
-    if (error) throw error;
-    console.log(result[0]);
-});
+// var announcementsUtility = require('./utilities/announcements.js');
+// announcementsUtility.getAnnouncementById(2).then(function(result) {
+//     console.log(result);
+// });
 
 // --- Declare API routes here! ---   
 var announcements = require('./routes/announcements');
+var users = require('./routes/users');
+var tags = require('./routes/tags');
+
 
 var app = express();
 
@@ -25,6 +25,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // --- Route API calls here! ---
 app.use('/api', announcements);
+app.use('/api', users);
+app.use('/api', tags);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
