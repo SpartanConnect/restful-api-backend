@@ -2,7 +2,7 @@ var database = require('./database');
 var users = require('./users');
 
 // Getter
-exports.getAnnouncements = function(id, status, startDate, endDate, tagId) {
+exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creatorId) {
     var statement = 'SELECT id FROM announcements';
     var statementParameters = {};
 
@@ -10,6 +10,8 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId) {
     if(typeof status != 'undefined') { statementParameters.status = status; };
     if(typeof startDate != 'undefined') { statementParameters.startDate = startDate; };
     if(typeof endDate != 'undefined') { statementParameters.endDate = endDate; };
+    if(typeof tagId != 'undefined') { statementParameters.tagId = tagId; };
+    if(typeof creatorId != 'undefined') { statementParameters.creatorId = creatorId; };
 
     if(Object.keys(statementParameters).length != 0) {
         statement += ' WHERE ';
