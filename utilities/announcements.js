@@ -8,9 +8,8 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
 
     if(typeof id != 'undefined') { statementParameters.id = id; };
     if(typeof status != 'undefined') { statementParameters.status = status; };
-    if(typeof startDate != 'undefined') { statementParameters.startDate = startDate; };
-    if(typeof endDate != 'undefined') { statementParameters.endDate = endDate; };
-    if(typeof tagId != 'undefined') { statementParameters.tagId = tagId; };
+
+    //if(typeof tagId != 'undefined') { statementParameters.tagId = tagId; };
     if(typeof creatorId != 'undefined') { statementParameters.creatorId = creatorId; };
     if(typeof adminId != 'undefined') { statementParameters.adminId = adminId; };
 
@@ -30,7 +29,22 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
         statementParameters.tagId = tagId;
     }
 
-    //console.log(statement);
+    if(typeof startDate != 'undefined') {
+        if (Object.keys(statementParameters).length === 0) statement += " WHERE ";
+        else statement += ' AND ';
+        statement += 'startDate <= :startDate';
+        statementParameters.startDate = startDate;
+    };
+    if(typeof endDate != 'undefined') {
+        if (Object.keys(statementParameters).length === 0) statement += " WHERE ";
+        else statement += ' AND ';
+        statement += 'endDate >= :endDate';
+        statementParameters.endDate = endDate;
+    };
+
+
+
+    console.log(statement);
 
     return new Promise ((resolve) => {
         database.query(statement + ';', statementParameters).then((idList) => {
