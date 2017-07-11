@@ -9,7 +9,7 @@ function tagRequestHandler (req,res) {
                          req.query.minRequestRank,
                          req.query.minAssignRank,
                          req.query.parentId,
-                         req.query.visible,
+                         req.query.visibility,
                          req.query.slug).then ((tagObjectArray) => {
         if (typeof tagObjectArray[0]==='undefined') {
             res.json([]);
