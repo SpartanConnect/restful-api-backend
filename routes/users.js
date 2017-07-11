@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var userUtilities = require('../utilities/users');
+var announcementRoutes = require('./announcements');
 
 function userRequestHandler (req, res) {
     userUtilities.getUsers(req.query.id, req.query.rank, req.query.handle).then((userObjectResults) => {
@@ -19,6 +20,8 @@ function userRequestHandler (req, res) {
         console.log(error);
     });
 }
+
+router.get('/users/:creatorId/announcements', announcementRoutes.announcementRequestHandler);
 
 router.get('/users/', userRequestHandler);
 

@@ -9,7 +9,7 @@ function announcementRequestHandler (req, res) {
                                     req.query.startDate,
                                     req.query.endDate,
                                     (req.query.tagId ? req.query.tagId : req.params.tagId),
-                                    req.query.creatorId,
+                                    (req.query.creatorId ? req.query.creatorId : req.params.creatorId),
                                     req.query.adminId).then((data) => {
         //console.log('This should be our data out from the routes page:\n',data);
         if (typeof data==='undefined') {

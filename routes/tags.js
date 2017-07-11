@@ -22,8 +22,6 @@ function tagRequestHandler (req,res) {
 
 router.get('/tags/', tagRequestHandler);
 
-router.get('/tags/:tagId/announcements', (req, res) => {
-    announcementRoutes.announcementRequestHandler(req, res)
-});
+router.get('/tags/:tagId/announcements', announcementRoutes.announcementRequestHandler);
 
 module.exports = router;
