@@ -4,7 +4,7 @@ var router = express.Router();
 var tagUtility = require('../utilities/tags');
 
 router.get('/tags/',function (req, res) {
-    tagUtility.getTags().then ((tagObjectArray) => {
+    tagUtility.getTags(req.query.id, req.query.minRequestRank, req.query.minAssignRank, req.query.parentId, req.query.visible).then ((tagObjectArray) => {
         res.json(tagObjectArray);
         res.end();
     });
