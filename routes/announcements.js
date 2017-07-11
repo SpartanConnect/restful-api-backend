@@ -13,10 +13,10 @@ function announcementRequestHandler (req, res) {
                                     req.query.adminId).then((data) => {
         //console.log('This should be our data out from the routes page:\n',data);
         if (typeof data==='undefined') {
-            res.json();
+            res.json([]);
         }
         else if (data.length === 1) {
-            res.json(data[0]);
+            res.json(data);
         }
         else
         {

@@ -9,10 +9,10 @@ function userRequestHandler (req, res) {
                            req.query.rank,
                            req.query.handle).then((userObjectResults) => {
         if(typeof userObjectResults==='undefined') {
-            res.json();
+            res.json([]);
         }
         else if (userObjectResults.length === 1) {
-            res.json(userObjectResults[0]);
+            res.json(userObjectResults);
         }
         else {
             res.json(userObjectResults);
