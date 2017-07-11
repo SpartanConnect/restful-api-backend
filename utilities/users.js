@@ -27,7 +27,7 @@ exports.getUsers = function(id, rank, handle) {
         database.query(statement + ';', statementParameters).then((idList) => {
             var userResults = [];
             var userPromises = idList.map((userId) => {
-                return exports.getUser(userId.id).then((data) => {
+                return exports.getUserById(userId.id).then((data) => {
                     //console.log(data);
                     userResults.push(data);
                     // We had no other choice..
@@ -45,7 +45,7 @@ exports.getUsers = function(id, rank, handle) {
     });
 }
 
-exports.getUser = function(id) {
+exports.getUserById = function(id) {
     //SELECT * FRON users WHERE id=id;
     if (typeof id === 'undefined') return Promise.resolve({});
     //console.log('get user hit');

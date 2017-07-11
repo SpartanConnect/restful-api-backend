@@ -51,25 +51,31 @@ exports.getAnnouncementById = function(id) {
     //console.log('Hit getAnnouncementById');
     let announcementSqlQuery = database.query('SELECT * FROM announcements WHERE id=:id',{id:id});
     let tagSqlQuery = database.query('SELECT * FROM tags WHERE id IN (SELECT tagId FROM announcements_tags WHERE announcementId=:id);',{id:id});
-    let creatorSqlQuery = database.query('SELECT * FROM users WHERE id = (SELECT creatorId FROM announcements WHERE id=:id)',{id:id});
-    let adminSqlQuery = database.query('SELECT * FROM users WHERE id = (SELECT adminId FROM announcements WHERE id=:id)',{id:id});
+    //let creatorSqlQuery = database.query('SELECT * FROM users WHERE id = (SELECT creatorId FROM announcements WHERE id=:id)',{id:id});
+    //let adminSqlQuery = database.query('SELECT * FROM users WHERE id = (SELECT adminId FROM announcements WHERE id=:id)',{id:id});
     //console.log("sent all queries");
     return new Promise ((resolve) => {
         //console.log('Returning new promise');
-        Promise.all([announcementSqlQuery, creatorSqlQuery, adminSqlQuery, tagSqlQuery]).then((promiseResultArray) => {
-            //console.log('This is the promise result array:\n',promiseResultArray);
-            let rawAnnouncementArray = promiseResultArray[0];
-            //console.log('This is the rawAnnouncementArray\n', rawAnnouncementArray);
-            let rawCreatorArray = promiseResultArray[1];
-            //console.log('This is the rawCreatorArray\n', rawAnnouncementArray);
-            let rawAdmin = promiseResultArray[2];
-            //console.log('This is the rawAdmin info\n', rawAdmin);
-            let rawTags = [promiseResultArray[3]];
-            //console.log('This is (hopefully the raw array of tags)\n',rawTags);
-            //console.log('promise results divvied up');
-            resolve (exports.announcementPackager(rawAnnouncementArray, rawCreatorArray, rawAdmin, rawTags));
+        Promise.all([announcementSqlQuery, tagSqlQuery]).then((announcementResultArray) => {
+            let rawAnnouncementArray = announcementResultArray[0];
+            let creatorDatabaseQuery = users.getUserById(rawAnnouncementArray[0].creatorId);
+            let adminDatabaseQuery = users.getUserById(rawAnnouncementArray[0].adminId);
+            Promise.all([creatorDatabaseQuery,adminDatabaseQuery]).then((userResultArray) => {
+                //console.log('This is the promise result array:\n',promiseResultArray);
+                //console.log('This is the rawAnnouncementArray\n', rawAnnouncementArray);
+                let rawCreatorArray = [userResultArray[0]];
+                //console.log('This is the rawCreatorArray\n', rawAnnouncementArray);
+                let rawAdminArray = [userResultArray[1]];
+                //console.log('This is the rawAdmin info\n', rawAdmin);
+                let rawTags = [announcementResultArray[1]];
+                //console.log('This is (hopefully the raw array of tags)\n',rawTags);
+                //console.log('promise results divvied up');
+                resolve (exports.announcementPackager(rawAnnouncementArray, rawCreatorArray, rawAdminArray, rawTags));
+            }).catch(error =>{
+                console.log(error);
+            });
         }).catch(error =>{
-            //console.log(error);
+            console.log(error);
         })
     });
 }
@@ -93,6 +99,7 @@ exports.desanitizeInput = function(input) {
 exports.announcementPackager = function(rawAnnouncementArray, rawUserCreatorArray, rawUserAdminArray, rawTagArrayArray) {
     //console.log('hit packager');
     //console.log(rawTagArrayArray);
+    //console.log('This is the rawAnnouncementArray from the announcementPackager',rawAnnouncementArray);
     let announcementObject = rawAnnouncementArray.map((rawAnnouncement, announcementIndex) => {
         if (typeof rawAnnouncement.creatorId !== 'undefined') {
             rawAnnouncement.creator = rawUserCreatorArray[announcementIndex];
