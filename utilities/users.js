@@ -4,6 +4,40 @@ var database = require('./database')
 // GETTERS
 // Gets users
 
+exports.getUsers = function(id, rank, handle) {
+    var statement = 'SELECT id FROM users';
+    var statementParameters = {};
+
+    if(typeof id != 'undefined') { statementParameters.id = id; };
+    if(typeof rank != 'undefined') { statementParameters.rank = rank; };
+    if(typeof handle != 'undefined') { statementParameters.handle = handle; };
+
+    if(Object.keys(statementParameters).length != 0) {
+        statement += ' WHERE ';
+        Object.keys(statementParameters).forEach(function(item, index) {
+            if(index != 0) { statement += ' AND '; }
+            statement += item + ' = :' + item;
+        });
+    }
+
+    return new Promise ((resolve) => {
+        database.query(statement + ';', statementParameters).then((idList) => {
+            var userResults = [];
+            var userPromises = idList.map((userId) => {
+                return exports.getUser(userId.id).then((data) => {
+                    userResults.push(data[0]);
+                    // We had no other choice..
+                    if (userResults.length === userPromises.length) {
+                        resolve(userResults);
+                    };
+                });
+            });
+        });
+    });
+}
+
+}
+
 exports.getUser = function(id) {
     //SELECT * FRON users WHERE id=id;
     if (typeof id === 'undefined') return Promise.resolve({});
