@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var announcements = require('../utilities/announcements');
-var notificationRoutes = require'./notifications';
+var notificationRoutes = require('./notifications');
 
 function announcementRequestHandler (req, res) {
     announcements.getAnnouncements((req.query.id ? req.query.id : req.params.id),
