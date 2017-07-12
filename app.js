@@ -14,7 +14,8 @@ var mysql = require('mysql');
 var announcements = require('./routes/announcements');
 var users = require('./routes/users');
 var tags = require('./routes/tags');
-var notifications = require('./routes/notifications')
+var notifications = require('./routes/notifications');
+var events = require('./routes/events');
 
 
 var app = express();
@@ -29,6 +30,7 @@ app.use('/api', announcements);
 app.use('/api', users);
 app.use('/api', tags);
 app.use('/api', notifications);
+app.use('/api', events);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
