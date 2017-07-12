@@ -5,9 +5,9 @@ var eventUtilities = require('../utilities/events');
 
 function eventRequestHandler (req, res) {
     //console.log('hit router');
-    eventUtilities.getEvents(req.query.id,
+    eventUtilities.getEvents((req.query.id ? req.query.id : req.params.id),
                              req.query.type,
-                             req.query.announcementId,
+                             (req.query.announcementId ? req.query.announcementId : req.params.announcementId),
                              req.query.startTimestamp,
                              req.query.endTimestamp).then((eventResults) => {
         //console.log('completed get event function');
@@ -27,7 +27,14 @@ function eventRequestHandler (req, res) {
 
 router.get('/events/', eventRequestHandler);
 
+router.get('/events/:id', eventRequestHandler);
+
 router.get('/deadlines/', (req, res) => {
+    req.query.type = 1;
+    eventRequestHandler(req, res);
+});
+
+router.get('/deadlines/:id', (req, res) => {
     req.query.type = 1;
     eventRequestHandler(req, res);
 });

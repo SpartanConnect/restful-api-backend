@@ -3,6 +3,7 @@ var router = express.Router();
 
 var announcements = require('../utilities/announcements');
 var notificationRoutes = require('./notifications');
+var eventRoutes = require('./events');
 
 function announcementRequestHandler (req, res) {
     announcements.getAnnouncements((req.query.id ? req.query.id : req.params.id),
@@ -37,6 +38,15 @@ router.get('/announcements/current', function (req, res) {
 })
 
 router.get('/announcements/:announcementId/notifications', notificationRoutes.notificationRequestHandler)
+
+router.get('/announcements/:announcementId/events', (req, res) => {
+    eventRoutes.eventRequestHandler (req, res);
+});
+
+router.get('/announcements/:announcementId/deadlines', (req, res) => {
+    req.query.type = 1;
+    eventRoutes.eventRequestHandler (req, res);
+});
 
 router.get('/announcements/:id', announcementRequestHandler);
 
