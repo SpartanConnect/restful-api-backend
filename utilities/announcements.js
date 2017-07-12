@@ -58,7 +58,7 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
 
 exports.getAnnouncementById = function(id) {
     //console.log('Hit getAnnouncementById');
-    let announcementSqlQuery = database.query('SELECT * FROM announcements WHERE id=:id',{id:id});
+    let announcementSqlQuery = database.query('SELECT * FROM announcements WHERE id=:id;',{id:id});
     let tagSqlQuery = database.query('SELECT * FROM tags WHERE id IN (SELECT tagId FROM announcements_tags WHERE announcementId=:id);',{id:id});
     //let creatorSqlQuery = database.query('SELECT * FROM users WHERE id = (SELECT creatorId FROM announcements WHERE id=:id)',{id:id});
     //let adminSqlQuery = database.query('SELECT * FROM users WHERE id = (SELECT adminId FROM announcements WHERE id=:id)',{id:id});

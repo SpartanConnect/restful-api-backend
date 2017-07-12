@@ -17,14 +17,6 @@ exports.getNotifications = (id, type, userId, announcementId, startDate, endDate
         });
     };
 
-    if (typeof startDate !== 'undefined') {
-        if (Object.keys(statementParameters).length !== 0) {
-            statement += ' AND ';
-        }
-        statement += ' WHERE timeCreated >= :startDate';
-        statementParameters.startDate = startDate;
-    };
-
     if(typeof startDate != 'undefined' && typeof endDate != 'undefined') {
         if (Object.keys(statementParameters).length === 0) statement += " WHERE ";
         else statement += ' AND ';
@@ -33,7 +25,7 @@ exports.getNotifications = (id, type, userId, announcementId, startDate, endDate
         statementParameters.endDate = endDate;
     };
 
-    return database.query(statement, statementParameters);
+    return database.query(statement+';', statementParameters);
 }
 
 exports.getNotificationById = (id) => {

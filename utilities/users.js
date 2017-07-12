@@ -50,7 +50,7 @@ exports.getUserById = function(id) {
     //SELECT * FRON users WHERE id=id;
     if (typeof id === 'undefined') return Promise.resolve();
     //console.log('get user hit');
-    userSql = database.query('SELECT * FROM users WHERE id=:id', {id:id});
+    userSql = database.query('SELECT * FROM users WHERE id=:id;', {id:id});
     postCountApprovedSql = exports.getUserPostCount(id,1);
     postCountUnapprovedSql = exports.getUserPostCount(id,0);
     postCountDeniedSql = exports.getUserPostCount(id,2);
@@ -74,8 +74,8 @@ exports.getUserAnnouncements = function(userId, status) {
 
 exports.getUserPostCount = function(userId, status) {
     //console.log('user post counter hit');
-    if (typeof status !== 'undefined') return database.query('SELECT COUNT (id) FROM announcements WHERE creatorId=:userId AND status=:status', {userId:userId,status:status});
-    return database.query('SELECT COUNT (id) FROM announcements WHERE creatorId=:userId',{userId:userId});
+    if (typeof status !== 'undefined') return database.query('SELECT COUNT (id) FROM announcements WHERE creatorId=:userId AND status=:status;', {userId:userId,status:status});
+    return database.query('SELECT COUNT (id) FROM announcements WHERE creatorId=:userId;',{userId:userId});
 }
 
 exports.userPromiseHandler = function(promiseIn) {
