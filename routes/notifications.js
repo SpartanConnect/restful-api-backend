@@ -27,3 +27,4 @@ function notificationRequestHandler (req, res) {
 router.get('/notifications/', notificationRequestHandler);
 
 module.exports = router;
+module.exports.notificationRequestHandler = notificationRequestHandler;
