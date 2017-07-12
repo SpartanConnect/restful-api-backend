@@ -32,7 +32,7 @@ exports.getNotifications = (id, type, userId, startDate, endDate) => {
         statementParameters.endDate = endDate;
     };
 
-    return database.query();
+    return database.query(statement, statementParameters);
 }
 
 exports.getNotificationById = (id) => {
