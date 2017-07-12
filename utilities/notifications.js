@@ -1,12 +1,13 @@
 var database = require('./database');
 
-exports.getNotifications = (id, type, userId, startDate, endDate) => {
+exports.getNotifications = (id, type, userId, announcementId, startDate, endDate) => {
     var statement = 'SELECT * FROM notifications';
     var statementParameters = {};
 
     if(typeof id != 'undefined') { statementParameters.id = id; };
     if(typeof type != 'undefined') { statementParameters.type = id; };
     if(typeof userId != 'undefined') { statementParameters.userId = userId; };
+    if(typeof announcementId != 'undefined') { statementParameters.announcementId = announcementId; };
 
     if(Object.keys(statementParameters).length != 0) {
         statement += ' WHERE ';

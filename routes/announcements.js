@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var announcements = require('../utilities/announcements');
+var notificationRoutes = require'./notifications';
 
 function announcementRequestHandler (req, res) {
     announcements.getAnnouncements((req.query.id ? req.query.id : req.params.id),
@@ -37,6 +38,8 @@ router.get('/announcements/current', function (req, res) {
     req.query.endDate = new Date();
     announcementRequestHandler(req, res);
 })
+
+router.get('/announcements/:announcementId/notifications', notificationRoutes.notificationRequestHandler)
 
 router.get('/announcements/:id', announcementRequestHandler);
 
