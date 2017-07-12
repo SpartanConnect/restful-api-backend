@@ -11,13 +11,10 @@ function notificationRequestHandler (req, res) {
                                            req.query.startDate,
                                            req.query.endDate).then((notificationResults) => {
         if(typeof notificationResults==='undefined') {
-        res.json([]);
-        }
-        else if (notificationResults.length === 1) {
-        res.json(notificationResults);
+            res.json([]);
         }
         else {
-        res.json(notificationResults);
+            res.json(notificationResults);
         }
         res.end();
     }).catch(error => {

@@ -16,9 +16,6 @@ function announcementRequestHandler (req, res) {
         if (typeof data==='undefined') {
             res.json([]);
         }
-        else if (data.length === 1) {
-            res.json(data);
-        }
         else
         {
             res.json(data);

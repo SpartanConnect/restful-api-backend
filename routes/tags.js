@@ -14,9 +14,6 @@ function tagRequestHandler (req,res) {
         if (typeof tagObjectArray[0]==='undefined') {
             res.json([]);
         }
-        else if (tagObjectArray.length === 1) {
-            res.json(tagObjectArray);
-        }
         else
         {
             res.json(tagObjectArray);

@@ -12,9 +12,6 @@ function userRequestHandler (req, res) {
         if(typeof userObjectResults==='undefined') {
             res.json([]);
         }
-        else if (userObjectResults.length === 1) {
-            res.json(userObjectResults);
-        }
         else {
             res.json(userObjectResults);
         }
