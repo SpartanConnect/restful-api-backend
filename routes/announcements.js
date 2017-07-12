@@ -30,7 +30,7 @@ function announcementRequestHandler (req, res) {
 router.get('/announcements/', announcementRequestHandler);
 
 router.get('/announcements/current', function (req, res) {
-    console.log(new Date());
+    //console.log(new Date());
     req.query.startDate = new Date();
     req.query.endDate = new Date();
     announcementRequestHandler(req, res);
