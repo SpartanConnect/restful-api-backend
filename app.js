@@ -14,6 +14,7 @@ var mysql = require('mysql');
 var announcements = require('./routes/announcements');
 var users = require('./routes/users');
 var tags = require('./routes/tags');
+var notifications = require('./routes/notifications')
 
 
 var app = express();
@@ -27,6 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', announcements);
 app.use('/api', users);
 app.use('/api', tags);
+app.use('/api', notifications);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

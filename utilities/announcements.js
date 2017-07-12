@@ -8,8 +8,6 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
 
     if(typeof id != 'undefined') { statementParameters.id = id; };
     if(typeof status != 'undefined') { statementParameters.status = status; };
-
-    //if(typeof tagId != 'undefined') { statementParameters.tagId = tagId; };
     if(typeof creatorId != 'undefined') { statementParameters.creatorId = creatorId; };
     if(typeof adminId != 'undefined') { statementParameters.adminId = adminId; };
 
@@ -29,20 +27,13 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
         statementParameters.tagId = tagId;
     }
 
-    if(typeof startDate != 'undefined') {
+    if(typeof startDate != 'undefined' && typeof endDate != 'undefined') {
         if (Object.keys(statementParameters).length === 0) statement += " WHERE ";
         else statement += ' AND ';
-        statement += 'startDate <= :startDate';
+        statement += 'NOT ( (startDate > :endDate) OR (endDate < :startDate) )';
         statementParameters.startDate = startDate;
-    };
-    if(typeof endDate != 'undefined') {
-        if (Object.keys(statementParameters).length === 0) statement += " WHERE ";
-        else statement += ' AND ';
-        statement += 'endDate >= :endDate';
         statementParameters.endDate = endDate;
     };
-
-
 
     //console.log(statement);
 
