@@ -34,10 +34,5 @@ router.get('/deadlines/', (req, res) => {
     eventRequestHandler(req, res);
 });
 
-router.get('/deadlines/:id', (req, res) => {
-    req.query.type = 1;
-    eventRequestHandler(req, res);
-});
-
 module.exports = router;
 module.exports.eventRequestHandler = eventRequestHandler;

@@ -4,7 +4,7 @@ exports.getEvents = (id, type, announcementId, startTimestamp, endTimestamp) => 
     var statement = 'SELECT * FROM events';
     var statementParameters = {};
 
-    console.log('hit get event utility function');
+    //console.log('hit get event utility function');
     if(typeof id != 'undefined') { statementParameters.id = id; };
     if(typeof type != 'undefined') { statementParameters.type = type; };
     if(typeof announcementId != 'undefined') { statementParameters.announcementId = announcementId; };

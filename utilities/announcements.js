@@ -1,5 +1,6 @@
 var database = require('./database');
 var users = require('./users');
+var events = require('./events');
 
 // Getter
 exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creatorId, adminId) {
@@ -70,17 +71,21 @@ exports.getAnnouncementById = function(id) {
             let rawAnnouncementArray = announcementResultArray[0];
             let creatorDatabaseQuery = users.getUserById(rawAnnouncementArray[0].creatorId);
             let adminDatabaseQuery = users.getUserById(rawAnnouncementArray[0].adminId);
-            Promise.all([creatorDatabaseQuery,adminDatabaseQuery]).then((userResultArray) => {
+            let eventDatabaseQuery = events.getEvents(undefined, undefined, id, undefined, undefined)
+            Promise.all([creatorDatabaseQuery,adminDatabaseQuery, eventDatabaseQuery]).then((userEventResultArray) => {
                 //console.log('This is the promise result array:\n',promiseResultArray);
                 //console.log('This is the rawAnnouncementArray\n', rawAnnouncementArray);
-                let rawCreatorArray = [userResultArray[0]];
+                //console.log(userEventResultArray);
+                let rawCreatorArray = [userEventResultArray[0]];
                 //console.log('This is the rawCreatorArray\n', rawAnnouncementArray);
-                let rawAdminArray = [userResultArray[1]];
+                let rawAdminArray = [userEventResultArray[1]];
                 //console.log('This is the rawAdmin info\n', rawAdmin);
+                let rawEventArray = [userEventResultArray[2]]
+                //console.log('this is the raw event array', rawEventArray);
                 let rawTags = [announcementResultArray[1]];
                 //console.log('This is (hopefully the raw array of tags)\n',rawTags);
                 //console.log('promise results divvied up');
-                resolve (exports.announcementPackager(rawAnnouncementArray, rawCreatorArray, rawAdminArray, rawTags));
+                resolve (exports.announcementPackager(rawAnnouncementArray, rawCreatorArray, rawAdminArray, rawTags, rawEventArray));
             }).catch(error =>{
                 console.log(error);
             });
@@ -106,7 +111,7 @@ exports.sanitizeInput = function(input) {
 exports.desanitizeInput = function(input) {
 }
 
-exports.announcementPackager = function(rawAnnouncementArray, rawUserCreatorArray, rawUserAdminArray, rawTagArrayArray) {
+exports.announcementPackager = function(rawAnnouncementArray, rawUserCreatorArray, rawUserAdminArray, rawTagArrayArray, rawEventArrayArray) {
     //console.log('hit packager');
     //console.log(rawTagArrayArray);
     //console.log('This is the rawAnnouncementArray from the announcementPackager',rawAnnouncementArray);
@@ -119,10 +124,8 @@ exports.announcementPackager = function(rawAnnouncementArray, rawUserCreatorArra
             rawAnnouncement.admin = rawUserAdminArray[announcementIndex];
             delete rawAnnouncement.adminId;
         }
-        rawAnnouncement.tags = [];
-        rawTagArrayArray[announcementIndex].map((rawTag) => {
-            rawAnnouncement.tags.push(rawTag);
-        });
+        rawAnnouncement.tags = rawTagArrayArray[announcementIndex];
+        rawAnnouncement.events = rawEventArrayArray[announcementIndex];
         return rawAnnouncement;
     });
     ////console.log(announcementObject);
