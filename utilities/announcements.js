@@ -24,7 +24,11 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
         if (Object.keys(statementParameters).length !== 0) {
             statement += ' AND ';
         }
-        statement += ' WHERE id IN (SELECT announcementId FROM announcements_tags WHERE tagId=:tagId) ';
+        else {
+            statement += ' WHERE '
+        }
+        if (tagId = 0) {statement += ' id IN (SELECT announcementId FROM announcements_tags WHERE tagId IN ( SELECT id FROM tags WHERE parentId IS NULL )) ';}
+        else {statement += ' id IN (SELECT announcementId FROM announcements_tags WHERE tagId=:tagId) ';}
         statementParameters.tagId = tagId;
     }
 

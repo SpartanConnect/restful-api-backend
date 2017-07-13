@@ -12,9 +12,9 @@ exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibili
     if(typeof id != 'undefined') { statementParameters.id = id; };
     if(typeof minAssignRank != 'undefined') { statementParameters.minUserLevelAssign = minAssignRank; };
     if(typeof minRequestRank != 'undefined') { statementParameters.minUserLevelRequest = minRequestRank; };
-    if(typeof parentId != 'undefined') { statementParameters.parentId = parentId; };
     if(typeof visibility != 'undefined') { statementParameters.visibility = visibility; }
     if(typeof slug != 'undefined') { statementParameters.slug = slug; }
+
 
     if(Object.keys(statementParameters).length != 0) {
         statement += ' WHERE ';
@@ -22,9 +22,23 @@ exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibili
             if(index != 0) { statement += ' AND '; }
             statement += item + ' = :' + item;
         });
+    
+    }
+    if (typeof parentId !== 'undefined') {
+        if(Object.keys(statementParameters).length === 0) { statement += ' WHERE ' }
+        else {
+            statement += ' AND ';
+        }
+        if (parentId == 0) {
+            statement += ' parentId IS NULL '
+        }
+        else {
+            statement += 'parentId = :parentId ';
+            statementParameters.parentId = parentId;
+        }
     }
 
-    //console.log(statement);
+    console.log(statement);
 
     return database.query(statement+';', statementParameters);
 }
