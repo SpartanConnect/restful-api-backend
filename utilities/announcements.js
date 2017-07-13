@@ -21,13 +21,11 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
     }
 
     if (typeof tagId !== 'undefined') {
-        if (Object.keys(statementParameters).length !== 0) {
-            statement += ' AND ';
-        }
-        else {
-            statement += ' WHERE '
-        }
-        if (tagId = 0) {statement += ' id IN (SELECT announcementId FROM announcements_tags WHERE tagId IN ( SELECT id FROM tags WHERE parentId IS NULL )) ';}
+        //console.log('tagId is not undefined!');
+        //console.log('this is tagId!', tagId);
+        if (Object.keys(statementParameters).length !== 0) {statement += ' AND ';}
+        else {statement += ' WHERE '}
+        if (tagId == 0) {statement += ' id IN (SELECT announcementId FROM announcements_tags WHERE tagId IN ( SELECT id FROM tags WHERE parentId IS NULL )) ';}
         else {statement += ' id IN (SELECT announcementId FROM announcements_tags WHERE tagId=:tagId) ';}
         statementParameters.tagId = tagId;
     }
