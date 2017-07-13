@@ -24,6 +24,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
 
 // --- Route API calls here! ---
 app.use('/api', announcements);

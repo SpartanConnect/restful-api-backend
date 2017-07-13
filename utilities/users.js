@@ -91,5 +91,27 @@ exports.userPromiseHandler = function(promiseIn) {
     return userObject;
 };
 
+exports.updateUser = (id, name, handle, email, rank) => {
+    var statement = 'UPDATE users SET ';
+    var statementParameters = {};
+
+    if (typeof name != 'undefined') { statementParameters.name = name; };
+    if (typeof handle != 'undefined') { statementParameters.handle = handle; };
+    if (typeof email != 'undefined') { statementParameters.email = email; };
+    if (typeof rank != 'undefined') { statementParameters.rank = rank; };
+
+    if (Object.keys(statementParameters).length != 0) {
+        Object.keys(statementParameters).forEach(function (item, index) {
+            if (index != 0) { statement += ' , '; }
+            statement += item + ' = :' + item;
+        });
+    }
+
+    statementParameters.id = id;
+
+    return database.query(statement + 'WHERE id = :id', statementParameters);
+
+}
+
 // Utilize exports instead of module.exports every time
 module.exports = exports;

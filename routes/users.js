@@ -21,11 +21,32 @@ function userRequestHandler (req, res) {
     });
 }
 
+function userSubmitHandler(req, res) {
+
+    if (typeof req.params.id === 'undefined') {
+        res.json({
+            success:false,
+            reason: 'No userId specified to modify.'
+        });
+    }
+
+    userUtilities.updateUser(req.params.id,
+                             req.body.name,
+                             req.body.handle,
+                             req.body.email,
+                             req.body.rank
+    ).then (() => {
+        res.json({success:true})
+    });
+}
+
 router.get('/users/:creatorId/announcements', announcementRoutes.announcementRequestHandler);
 
 router.get('/users/:userId/notifications', notificationRoutes.notificationRequestHandler);
 
 router.get('/users/:id', userRequestHandler);
+
+router.post('users/:id', userSubmitHandler);
 
 router.get('/users/', userRequestHandler);
 
