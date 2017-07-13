@@ -38,8 +38,13 @@ function userSubmitHandler(req, res) {
                              req.body.handle,
                              /*req.body.email,*/
                              req.body.rank
-        ).then (() => {
-            res.json({success:true})
+        ).then ((result) => {
+            if (result.affectedRows == 0) {
+                res.json({success: false,
+                          reason:"Could not insert/update rows."})
+            } else {
+                res.json({success:true})
+            }
          res.end();
         });
     }
