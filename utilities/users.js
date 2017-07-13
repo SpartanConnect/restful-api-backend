@@ -113,5 +113,12 @@ exports.updateUser = (id, name, handle, /*email,*/ rank) => {
 
 }
 
+exports.createUser = (name, handle, email) => {
+    var statement = 'INSERT INTO users (name, handle, email, rank) VALUES (:name, :handle, :email, 99);';
+    var statementParameters = {name: name, handle:handle, email:email};
+
+    return database.query(statement, statementParameters);
+}
+
 // Utilize exports instead of module.exports every time
 module.exports = exports;
