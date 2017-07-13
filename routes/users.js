@@ -21,32 +21,37 @@ function userRequestHandler (req, res) {
     });
 }
 
+//TODO: Make sure that users cannot demote or promote users of an incorrect level
 function userSubmitHandler(req, res) {
-
-    if (typeof req.params.id === 'undefined') {
+    //console.log('Hit submit utility handler');
+    console.log(parseInt(req.params.id));
+    if (isNaN(parseInt(req.params.id))) {
         res.json({
             success:false,
-            reason: 'No userId specified to modify.'
+            reason: 'Invalid userId specified to modify.'
         });
+        res.end();
     }
-
-    userUtilities.updateUser(req.params.id,
+    else{
+        userUtilities.updateUser(req.params.id,
                              req.body.name,
                              req.body.handle,
-                             req.body.email,
+                             /*req.body.email,*/
                              req.body.rank
-    ).then (() => {
-        res.json({success:true})
-    });
+        ).then (() => {
+            res.json({success:true})
+         res.end();
+        });
+    }
 }
 
 router.get('/users/:creatorId/announcements', announcementRoutes.announcementRequestHandler);
 
 router.get('/users/:userId/notifications', notificationRoutes.notificationRequestHandler);
 
-router.get('/users/:id', userRequestHandler);
+router.post('/users/:id', userSubmitHandler);
 
-router.post('users/:id', userSubmitHandler);
+router.get('/users/:id', userRequestHandler);
 
 router.get('/users/', userRequestHandler);
 

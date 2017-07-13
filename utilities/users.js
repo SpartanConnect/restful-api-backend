@@ -91,13 +91,13 @@ exports.userPromiseHandler = function(promiseIn) {
     return userObject;
 };
 
-exports.updateUser = (id, name, handle, email, rank) => {
+exports.updateUser = (id, name, handle, /*email,*/ rank) => {
     var statement = 'UPDATE users SET ';
     var statementParameters = {};
 
     if (typeof name != 'undefined') { statementParameters.name = name; };
     if (typeof handle != 'undefined') { statementParameters.handle = handle; };
-    if (typeof email != 'undefined') { statementParameters.email = email; };
+    //if (typeof email != 'undefined') { statementParameters.email = email; };
     if (typeof rank != 'undefined') { statementParameters.rank = rank; };
 
     if (Object.keys(statementParameters).length != 0) {
@@ -109,7 +109,7 @@ exports.updateUser = (id, name, handle, email, rank) => {
 
     statementParameters.id = id;
 
-    return database.query(statement + 'WHERE id = :id', statementParameters);
+    return database.query(statement + ' WHERE id = :id;', statementParameters);
 
 }
 
