@@ -52,20 +52,26 @@ function userSubmitHandler(req, res) {
         res.end();
     }
     else{
-        userUtilities.updateUser(req.params.id,
-                                 req.body.name,
-                                 req.body.handle,
-                                 /*req.body.email,*/
-                                 req.body.rank
-        ).then ((result) => {
-            if (result.affectedRows == 0) {
-                res.json({success: false,
-                          reason:"Could not update rows."})
-            } else {
-                res.json({success:true})
-            }
-         res.end();
-        });
+        if (typeof req.body.name === 'undefined' && typeof req.body.handle === 'undefined' && typeof req.body.rank === 'undefined') {
+            res.json({success:false, reason:'No edits have been made.'});
+            res.end();
+        }
+        else {
+            userUtilities.updateUser(req.params.id,
+                                    req.body.name,
+                                    req.body.handle,
+                                    /*req.body.email,*/
+                                    req.body.rank
+            ).then ((result) => {
+                if (result.affectedRows == 0) {
+                    res.json({success: false,
+                            reason:"Could not update rows."})
+                } else {
+                    res.json({success:true})
+                }
+            res.end();
+            });
+        }
     }
 }
 
