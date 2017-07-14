@@ -38,7 +38,7 @@ exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibili
         }
     }
 
-    console.log(statement);
+    //console.log(statement);
 
     return database.query(statement+';', statementParameters);
 }

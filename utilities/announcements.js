@@ -87,7 +87,7 @@ exports.getAnnouncementById = function(id) {
                 let rawTags = [announcementResultArray[1]];
                 //console.log('This is (hopefully the raw array of tags)\n',rawTags);
                 //console.log('promise results divvied up');
-                resolve (exports.announcementPackager(rawAnnouncementArray, rawCreatorArray, rawAdminArray, rawTags, rawEventArray));
+                resolve (exports.announcementPacker(rawAnnouncementArray, rawCreatorArray, rawAdminArray, rawTags, rawEventArray));
             }).catch(error =>{
                 console.log(error);
             });
@@ -98,11 +98,7 @@ exports.getAnnouncementById = function(id) {
 }
 
 // Setters
-exports.createAnnouncement = function(title, description, creatorId, startDate, endDate, urgent, status) {
-    if (typeof urgency === 'undefined') status = 0;
-    if (typeof status === 'undefined') status = 1;
-
-    //INSERT INTO announcements (title, description, creatorId, startDate,endDate, urgent, status, timeSubmitted) values (title, description, creatorId,startDate,endDate,urgent,status,NOW())
+exports.createAnnouncement = function(title, description, creatorId, adminId, startDate, endDate, ) {
 
 }
 
@@ -113,7 +109,7 @@ exports.sanitizeInput = function(input) {
 exports.desanitizeInput = function(input) {
 }
 
-exports.announcementPackager = function(rawAnnouncementArray, rawUserCreatorArray, rawUserAdminArray, rawTagArrayArray, rawEventArrayArray) {
+exports.announcementPacker = function(rawAnnouncementArray, rawUserCreatorArray, rawUserAdminArray, rawTagArrayArray, rawEventArrayArray) {
     //console.log('hit packager');
     //console.log(rawTagArrayArray);
     //console.log('This is the rawAnnouncementArray from the announcementPackager',rawAnnouncementArray);
