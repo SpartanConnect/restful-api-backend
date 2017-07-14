@@ -53,11 +53,11 @@ exports.getUserById = function(id, getPostCounts) {
     let userSql = database.query('SELECT * FROM users WHERE id=:id;', {id:id});
     if (getPostCounts) {
         /* eslint-disable no-unused-vars */
-        let postCountApprovedSql = exports.getUserPostCount(id,1);
-        let postCountUnapprovedSql = exports.getUserPostCount(id,0);
-        let postCountDeniedSql = exports.getUserPostCount(id,2);
-        let postCountRemovedSql = exports.getUserPostCount(id,3);
-        let postCountTotalSql = exports.getUserPostCount(id);
+        var postCountApprovedSql = exports.getUserPostCount(id,1);
+        var postCountUnapprovedSql = exports.getUserPostCount(id,0);
+        var postCountDeniedSql = exports.getUserPostCount(id,2);
+        var postCountRemovedSql = exports.getUserPostCount(id,3);
+        var postCountTotalSql = exports.getUserPostCount(id);
         /* eslint-enable no-unused-vars */
     }
     return new Promise((resolve) => {
@@ -94,6 +94,7 @@ exports.userPromiseHandler = function(promiseIn, includePostCounts) {
             totalCount : promiseIn[5][0]['COUNT (id)']
         };
     }
+    delete userObject.gid;
     return userObject;
 };
 
