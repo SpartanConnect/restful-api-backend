@@ -4,6 +4,9 @@ var logger = require('morgan');
 var bodyParser = require('body-parser');
 var mysql = require('mysql');
 
+// Configure environment variables
+require('dotenv').config();
+
 // --- Sample Query ---
 // var announcementsUtility = require('./utilities/announcements.js');
 // announcementsUtility.getAnnouncementById(2).then(function(result) {
@@ -16,7 +19,7 @@ var users = require('./routes/users');
 var tags = require('./routes/tags');
 var notifications = require('./routes/notifications');
 var events = require('./routes/events');
-
+var auth = require('./routes/auth');
 
 var app = express();
 
@@ -31,6 +34,7 @@ app.use('/api', users);
 app.use('/api', tags);
 app.use('/api', notifications);
 app.use('/api', events);
+app.use('/api', auth);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

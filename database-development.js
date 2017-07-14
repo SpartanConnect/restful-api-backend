@@ -1,5 +1,5 @@
 var mysql = require('mysql');
-require('dotenv').config();
+//require('dotenv').config();
 // --- mySQL Connection Variables ---
 
 //console.log(process.env);
