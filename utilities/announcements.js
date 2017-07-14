@@ -98,7 +98,7 @@ exports.getAnnouncementById = function(id) {
 }
 
 // Setters
-exports.createAnnouncement = function(title, description, creatorId, adminId, startDate, endDate, ) {
+exports.createAnnouncement = function(title, description, creatorId, adminId, startDate, endDate) {
 
 }
 
