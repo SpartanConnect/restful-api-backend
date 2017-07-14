@@ -7,10 +7,10 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
     var statement = 'SELECT id FROM announcements';
     var statementParameters = {};
 
-    if(typeof id != 'undefined') { statementParameters.id = id; };
-    if(typeof status != 'undefined') { statementParameters.status = status; };
-    if(typeof creatorId != 'undefined') { statementParameters.creatorId = creatorId; };
-    if(typeof adminId != 'undefined') { statementParameters.adminId = adminId; };
+    if(typeof id != 'undefined') { statementParameters.id = id; }
+    if(typeof status != 'undefined') { statementParameters.status = status; }
+    if(typeof creatorId != 'undefined') { statementParameters.creatorId = creatorId; }
+    if(typeof adminId != 'undefined') { statementParameters.adminId = adminId; }
 
     if(Object.keys(statementParameters).length != 0) {
         statement += ' WHERE ';
@@ -24,7 +24,7 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
         //console.log('tagId is not undefined!');
         //console.log('this is tagId!', tagId);
         if (Object.keys(statementParameters).length !== 0) {statement += ' AND ';}
-        else {statement += ' WHERE '}
+        else {statement += ' WHERE ';}
         if (tagId == 0) {statement += ' id IN (SELECT announcementId FROM announcements_tags WHERE tagId IN ( SELECT id FROM tags WHERE parentId IS NULL )) ';}
         else {statement += ' id IN (SELECT announcementId FROM announcements_tags WHERE tagId=:tagId) ';}
         statementParameters.tagId = tagId;
@@ -36,13 +36,13 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
         statement += 'NOT ( (startDate > :endDate) OR (endDate < :startDate) )';
         statementParameters.startDate = startDate;
         statementParameters.endDate = endDate;
-    };
+    }
 
     //console.log(statement);
 
     return new Promise ((resolve) => {
         database.query(statement + ';', statementParameters).then((idList) => {
-            if (idList.length === 0) {return resolve ()};
+            if (idList.length === 0) {return resolve ();}
 
             var announcementResults = [];
             var announcementPromises = idList.map((announcementId) => {
@@ -52,12 +52,12 @@ exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creat
                     // We had no other choice..
                     if (announcementResults.length === announcementPromises.length) {
                         resolve(announcementResults);
-                    };
+                    }
                 });
             });
         });
     });
-}
+};
 
 exports.getAnnouncementById = function(id) {
     //console.log('Hit getAnnouncementById');
@@ -69,11 +69,11 @@ exports.getAnnouncementById = function(id) {
     return new Promise ((resolve) => {
         //console.log('Returning new promise');
         Promise.all([announcementSqlQuery, tagSqlQuery]).then((announcementResultArray) => {
-            if (typeof announcementResultArray[0][0] === 'undefined') {return resolve()};
+            if (typeof announcementResultArray[0][0] === 'undefined') {return resolve();}
             let rawAnnouncementArray = announcementResultArray[0];
             let creatorDatabaseQuery = users.getUserById(rawAnnouncementArray[0].creatorId, false);
             let adminDatabaseQuery = users.getUserById(rawAnnouncementArray[0].adminId, false);
-            let eventDatabaseQuery = events.getEvents(undefined, undefined, id, undefined, undefined)
+            let eventDatabaseQuery = events.getEvents(undefined, undefined, id, undefined, undefined);
             Promise.all([creatorDatabaseQuery,adminDatabaseQuery, eventDatabaseQuery]).then((userEventResultArray) => {
                 //console.log('This is the promise result array:\n',promiseResultArray);
                 //console.log('This is the rawAnnouncementArray\n', rawAnnouncementArray);
@@ -82,7 +82,7 @@ exports.getAnnouncementById = function(id) {
                 //console.log('This is the rawCreatorArray\n', rawAnnouncementArray);
                 let rawAdminArray = [userEventResultArray[1]];
                 //console.log('This is the rawAdmin info\n', rawAdmin);
-                let rawEventArray = [userEventResultArray[2]]
+                let rawEventArray = [userEventResultArray[2]];
                 //console.log('this is the raw event array', rawEventArray);
                 let rawTags = [announcementResultArray[1]];
                 //console.log('This is (hopefully the raw array of tags)\n',rawTags);
@@ -93,21 +93,35 @@ exports.getAnnouncementById = function(id) {
             });
         }).catch(error =>{
             console.log(error);
-        })
+        });
     });
-}
+};
 
 // Setters
-exports.createAnnouncement = function(title, description, creatorId, adminId, startDate, endDate) {
+exports.createAnnouncement = (title, description, creatorId, startDate, endDate) => {
+    let statementParameters = {title:title,
+                               description:description,
+                               creatorId:creatorId,
+                               startDate:startDate,
+                               endDate:endDate};
+    database.query('INSERT INTO announcements (title, description, creatorId, startDate, endDate, status) VALUES (:title, :description, :creatorId, :startDate, :endDate, 0)', statementParameters);
+};
 
-}
+exports.updateAnnouncement = (id, title, desciption, startDate, endDate, adminId, status) => {
+    let statement = '';
+    let statementParameters = {};
+
+    //Build query to update announcement
+
+    return database.query(statement,statementParameters);
+};
 
 // Utilities
 exports.sanitizeInput = function(input) {
-}
+};
 
 exports.desanitizeInput = function(input) {
-}
+};
 
 exports.announcementPacker = function(rawAnnouncementArray, rawUserCreatorArray, rawUserAdminArray, rawTagArrayArray, rawEventArrayArray) {
     //console.log('hit packager');
@@ -128,6 +142,6 @@ exports.announcementPacker = function(rawAnnouncementArray, rawUserCreatorArray,
     });
     ////console.log(announcementObject);
     return announcementObject;
-}
+};
 
 module.exports = exports;

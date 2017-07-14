@@ -2,7 +2,7 @@ var express = require('express');
 var path = require('path');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
-var mysql = require('mysql');
+//var mysql = require('mysql');
 
 // --- Sample Query ---
 // var announcementsUtility = require('./utilities/announcements.js');
@@ -10,7 +10,7 @@ var mysql = require('mysql');
 //     console.log(result);
 // });
 
-// --- Declare API routes here! ---   
+// --- Declare API routes here! ---
 var announcements = require('./routes/announcements');
 var users = require('./routes/users');
 var tags = require('./routes/tags');
@@ -35,17 +35,17 @@ app.use('/api', events);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 // error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  res.status(err.status || 500);
+app.use(function(err, req, res/*, next*/) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+    res.status(err.status || 500);
 });
 
 module.exports = app;

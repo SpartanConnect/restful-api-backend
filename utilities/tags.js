@@ -1,6 +1,6 @@
 // Utility functions for tags
 var database = require('./database');
-var announcementsUtility = require('./announcements');
+//var announcementsUtility = require('./announcements');
 
 // GETTERS
 // Gets tags
@@ -9,9 +9,9 @@ exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibili
     var statement = 'SELECT * FROM tags';
     var statementParameters = {};
 
-    if(typeof id != 'undefined') { statementParameters.id = id; };
-    if(typeof minAssignRank != 'undefined') { statementParameters.minUserLevelAssign = minAssignRank; };
-    if(typeof minRequestRank != 'undefined') { statementParameters.minUserLevelRequest = minRequestRank; };
+    if(typeof id != 'undefined') { statementParameters.id = id; }
+    if(typeof minAssignRank != 'undefined') { statementParameters.minUserLevelAssign = minAssignRank; }
+    if(typeof minRequestRank != 'undefined') { statementParameters.minUserLevelRequest = minRequestRank; }
     if(typeof visibility != 'undefined') { statementParameters.visibility = visibility; }
     if(typeof slug != 'undefined') { statementParameters.slug = slug; }
 
@@ -25,12 +25,12 @@ exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibili
     
     }
     if (typeof parentId !== 'undefined') {
-        if(Object.keys(statementParameters).length === 0) { statement += ' WHERE ' }
+        if(Object.keys(statementParameters).length === 0) { statement += ' WHERE '; }
         else {
             statement += ' AND ';
         }
         if (parentId == 0) {
-            statement += ' parentId IS NULL '
+            statement += ' parentId IS NULL ';
         }
         else {
             statement += 'parentId = :parentId ';
@@ -41,12 +41,12 @@ exports.getTags = function(id, minRequestRank, minAssignRank, parentId, visibili
     //console.log(statement);
 
     return database.query(statement+';', statementParameters);
-}
+};
 
 exports.getTagById = function(id) {
     //console.log('hit getTagById function');
     return database.query('SELECT * FROM tags WHERE id=:id',{id:id});
-}
+};
 
 // SETTERS
 // Sets tags

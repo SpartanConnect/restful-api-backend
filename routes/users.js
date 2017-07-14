@@ -6,9 +6,11 @@ var announcementRoutes = require('./announcements');
 var notificationRoutes = require('./notifications');
 
 function userRequestHandler (req, res) {
+    /* eslint-disable indent */
     userUtilities.getUsers((req.query.id ? req.query.id : req.params.id),
                            req.query.rank,
                            req.query.handle).then((userObjectResults) => {
+        /* eslint-enable indent */
         if(typeof userObjectResults==='undefined') {
             res.json([]);
         }
@@ -26,13 +28,15 @@ function userSubmitHandler(req, res) {
     //console.log('Hit submit utility handler');
     //console.log(parseInt(req.params.id));
     if (typeof req.params.id === 'undefined') {
-        if (typeof req.body.name !== 'undefined' && typeof req.body.handle !== 'undefined' && typeof req.body.email !== 'undefined') {
+        if (typeof req.body.name !== 'undefined' &&
+            typeof req.body.handle !== 'undefined' &&
+            typeof req.body.email !== 'undefined') {
             //console.log('Create user conditions met');
             userUtilities.createUser(req.body.name, req.body.handle, req.body.email).then ((result) => {
                 //console.log('create user completed');
                 if (result.affectedRows == 0) {
                     res.json({success: false,
-                            reason:"Could not add rows and create user."})
+                        reason:'Could not add rows and create user.'});
                 } else {
                     res.json({success:true});
                 }
@@ -57,19 +61,21 @@ function userSubmitHandler(req, res) {
             res.end();
         }
         else {
+            /* eslint-disable indent */
             userUtilities.updateUser(req.params.id,
                                     req.body.name,
                                     req.body.handle,
                                     /*req.body.email,*/
                                     req.body.rank
+            /* eslint-enable indent */
             ).then ((result) => {
                 if (result.affectedRows == 0) {
                     res.json({success: false,
-                            reason:"Could not update rows."})
+                        reason:'Could not update rows.'});
                 } else {
-                    res.json({success:true})
+                    res.json({success:true});
                 }
-            res.end();
+                res.end();
             });
         }
     }
