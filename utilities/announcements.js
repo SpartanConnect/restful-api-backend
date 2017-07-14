@@ -71,8 +71,8 @@ exports.getAnnouncementById = function(id) {
         Promise.all([announcementSqlQuery, tagSqlQuery]).then((announcementResultArray) => {
             if (typeof announcementResultArray[0][0] === 'undefined') {return resolve()};
             let rawAnnouncementArray = announcementResultArray[0];
-            let creatorDatabaseQuery = users.getUserById(rawAnnouncementArray[0].creatorId);
-            let adminDatabaseQuery = users.getUserById(rawAnnouncementArray[0].adminId);
+            let creatorDatabaseQuery = users.getUserById(rawAnnouncementArray[0].creatorId, false);
+            let adminDatabaseQuery = users.getUserById(rawAnnouncementArray[0].adminId, false);
             let eventDatabaseQuery = events.getEvents(undefined, undefined, id, undefined, undefined)
             Promise.all([creatorDatabaseQuery,adminDatabaseQuery, eventDatabaseQuery]).then((userEventResultArray) => {
                 //console.log('This is the promise result array:\n',promiseResultArray);

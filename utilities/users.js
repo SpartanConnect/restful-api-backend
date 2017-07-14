@@ -28,7 +28,7 @@ exports.getUsers = function(id, rank, handle) {
             if (idList.length === 0) {return resolve ()};
             var userResults = [];
             var userPromises = idList.map((userId) => {
-                return exports.getUserById(userId.id).then((data) => {
+                return exports.getUserById(userId.id, true).then((data) => {
                     //console.log(data);
                     userResults.push(data);
                     // We had no other choice..
@@ -46,20 +46,22 @@ exports.getUsers = function(id, rank, handle) {
     });
 }
 
-exports.getUserById = function(id) {
+exports.getUserById = function(id, getPostCounts) {
     //SELECT * FRON users WHERE id=id;
     if (typeof id === 'undefined') return Promise.resolve();
     //console.log('get user hit');
     userSql = database.query('SELECT * FROM users WHERE id=:id;', {id:id});
-    postCountApprovedSql = exports.getUserPostCount(id,1);
-    postCountUnapprovedSql = exports.getUserPostCount(id,0);
-    postCountDeniedSql = exports.getUserPostCount(id,2);
-    postCountRemovedSql = exports.getUserPostCount(id,3);
-    postCountTotalSql = exports.getUserPostCount(id);
+    if (getPostCounts) {
+        postCountApprovedSql = exports.getUserPostCount(id,1);
+        postCountUnapprovedSql = exports.getUserPostCount(id,0);
+        postCountDeniedSql = exports.getUserPostCount(id,2);
+        postCountRemovedSql = exports.getUserPostCount(id,3);
+        postCountTotalSql = exports.getUserPostCount(id);
+    }
     return new Promise((resolve) => {
-        Promise.all([userSql,postCountApprovedSql,postCountUnapprovedSql,postCountDeniedSql,postCountRemovedSql,postCountTotalSql]).then((userPromise) => {
+        Promise.all((getPostCounts ? [userSql,postCountApprovedSql,postCountUnapprovedSql,postCountDeniedSql,postCountRemovedSql,postCountTotalSql] : [userSql])).then((userPromise) => {
             if (typeof userPromise[0][0] === 'undefined') {resolve()};
-            /*return*/ resolve (exports.userPromiseHandler(userPromise));
+            /*return*/ resolve (exports.userPromiseHandler(userPromise, getPostCounts));
         }).catch(error =>{
             console.log(error);
         });
@@ -78,15 +80,17 @@ exports.getUserPostCount = function(userId, status) {
     return database.query('SELECT COUNT (id) FROM announcements WHERE creatorId=:userId;',{userId:userId});
 }
 
-exports.userPromiseHandler = function(promiseIn) {
+exports.userPromiseHandler = function(promiseIn, includePostCounts) {
     if (typeof promiseIn[0][0] === 'undefined')  return {};
     var userObject = promiseIn[0][0];
-    userObject.postCounts = {
-        approvedCount : promiseIn[1][0]['COUNT (id)'],
-        unapprovedCount : promiseIn[2][0]['COUNT (id)'],
-        deniedCount : promiseIn[3][0]['COUNT (id)'],
-        removedCount : promiseIn[4][0]['COUNT (id)'],
-        totalCount : promiseIn[5][0]['COUNT (id)']
+    if (includePostCounts) {
+        userObject.postCounts = {
+            approvedCount : promiseIn[1][0]['COUNT (id)'],
+            unapprovedCount : promiseIn[2][0]['COUNT (id)'],
+            deniedCount : promiseIn[3][0]['COUNT (id)'],
+            removedCount : promiseIn[4][0]['COUNT (id)'],
+            totalCount : promiseIn[5][0]['COUNT (id)']
+        }
     };
     return userObject;
 };
