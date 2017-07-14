@@ -29,12 +29,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // --- Route API calls here! ---
+app.use('/api', auth);
 app.use('/api', announcements);
 app.use('/api', users);
 app.use('/api', tags);
 app.use('/api', notifications);
 app.use('/api', events);
-app.use('/api', auth);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
