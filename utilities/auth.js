@@ -79,11 +79,12 @@ exports.checkIfUserExists = function(access_token, refresh_token, callback) {
 
 exports.generateFilledUser = function(gid, name, email, profileUrl, callback) {
     database.query(
-        "INSERT INTO users (name, email, rank, lastLogin, gid, profileUrl) VALUES (:name, :email, 4, CURRENT_TIMESTAMP, :gid, :profileUrl)", {
+        "INSERT INTO users (name, email, rank, lastLogin, gid, profileUrl) VALUES (:name, :email, :role, CURRENT_TIMESTAMP, :gid, :profileUrl)", {
         name: name,
         email: email,
         gid: gid,
-        profileUrl: profileUrl
+        profileUrl: profileUrl,
+        role: exports.roles.ROLE_UNAPPROVED
     }).then((data) => {
         callback(data.affectedRows);
     });
@@ -114,9 +115,13 @@ exports.loginUser = function(gid, email, profileUrl, callback) {
     });
 }
 
-exports.setLoginCookie = function(access_token, refresh_token, callback) {
-    // rip
-    callback(true);
+// Implicit enum for roles
+exports.roles = {
+    ROLE_SUPERADMIN: 0,
+    ROLE_MAINTENANCE: 1,
+    ROLE_ADMIN: 2,
+    ROLE_TEACHER: 3,
+    ROLE_UNAPPROVED: 4
 }
 
 // Utilize exports instead of module.exports every time

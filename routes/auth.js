@@ -4,10 +4,6 @@ var jwt = require('jsonwebtoken');
 
 var auth = require('../utilities/auth');
 
-function generateCookies(access_token, refresh_token, cb) {
-    cb(true);
-}
-
 router.get('/users/login/generate', (req, res) => {
     res.redirect(auth.generateConsentUrl());
     res.end();
@@ -53,15 +49,11 @@ router.get('/users/login', (req, res) => {
                                 // create a new user (lcusd.net)
                                 auth.generateFilledUser(data.id, data.name, data.email, data.picture, (success) => {
                                     if (success) {
-                                        generateCookies(access_token, refresh_token, (success) => {
-                                            if (success) {
-                                                res.json(auth.generateAuthResponse(true, "Authenticated. Congratulations.", null));
-                                                res.end();
-                                            } else {
-                                                res.json(auth.generateAuthResponse(true, "Backend error (setting cookies).", null));
-                                                res.end();
-                                            }
-                                        });
+                                        // IDEA: change variable names?
+                                        req.session.access_token = access_token;
+                                        req.session.refresh_token = refresh_token;
+                                        res.json(auth.generateAuthResponse(true, "Authenticated. Congratulations.", null));
+                                        res.end();
                                     } else {
                                         res.json(auth.generateAuthResponse(false, 
                                             "Validated token, but cannot create/login as an account (database error). Please log in with a proper lcusd.net account through /users/login/generate again to create a valid account. In addition, you can also ask an admin to invite a user through the admin panel.", 
@@ -73,15 +65,11 @@ router.get('/users/login', (req, res) => {
                                 // fill the user if !lcusd.net
                                 auth.updateUsertoFilled(data.id, data.name, data.email, data.picture, (success) => {
                                     if (success) {
-                                        generateCookies(access_token, refresh_token, (success) => {
-                                            if (success) {
-                                                res.json(auth.generateAuthResponse(true, "Authenticated. Congratulations.", null));
-                                                res.end();
-                                            } else {
-                                                res.json(auth.generateAuthResponse(true, "Backend error (setting cookies).", null));
-                                                res.end();
-                                            }
-                                        });
+                                        // IDEA: change variable names?
+                                        req.session.access_token = access_token;
+                                        req.session.refresh_token = refresh_token;
+                                        res.json(auth.generateAuthResponse(true, "Authenticated. Congratulations.", null));
+                                        res.end();
                                     } else {
                                         res.json(auth.generateAuthResponse(false, 
                                             "Validated token, but cannot create/login as an account (database error). Please log in with a proper lcusd.net account through /users/login/generate again to create a valid account. In addition, you can also ask an admin to invite a user through the admin panel.", 
@@ -92,15 +80,11 @@ router.get('/users/login', (req, res) => {
                                 // log in the user regularly
                                 auth.loginUser(data.id, data.email, data.picture, (success) => {
                                     if (success) {
-                                        generateCookies(access_token, refresh_token, (success) => {
-                                            if (success) {
-                                                res.json(auth.generateAuthResponse(true, "Authenticated. Congratulations.", null));
-                                                res.end();
-                                            } else {
-                                                res.json(auth.generateAuthResponse(true, "Backend error (setting cookies).", null));
-                                                res.end();
-                                            }
-                                        });
+                                        // IDEA: change variable names?
+                                        req.session.access_token = access_token;
+                                        req.session.refresh_token = refresh_token;
+                                        res.json(auth.generateAuthResponse(true, "Authenticated. Congratulations.", null));
+                                        res.end();
                                     } else {
                                         res.json(auth.generateAuthResponse(false, 
                                             "Validated token, but cannot create/login as an account (database error). Please log in with a proper lcusd.net account through /users/login/generate again to create a valid account. In addition, you can also ask an admin to invite a user through the admin panel.", 
