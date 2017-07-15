@@ -110,12 +110,23 @@ router.get('/users/login', (req, res) => {
     }
 });
 
-router.get('/users/login/logout', (req, res) => {
-    res.json({
-        success: false,
-        message: "Cannot logout -- functionality not implemented."
-    });
-    res.end();
+router.get('/users/login/logout', auth.verifyAuthenticated(), (req, res) => {
+    if (!req.isAuthenticated) {
+        res.json({
+            success: false,
+            message: "Cannot logout -- you are not signed in."
+        });
+        res.end();
+    } else {
+        auth.revokeToken(access_token, (success) => {
+            if (!success) { req.json({ success: false, message: "Cannot logout -- could not revoke token." }).end(); }
+            else {
+                req.session = null;
+                req.json({ success: true, message: "Logged out." }).end();
+            }
+            
+        })
+    }
 });
 
 module.exports = router;

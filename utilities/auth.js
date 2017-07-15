@@ -99,7 +99,6 @@ exports.updateUsertoFilled = function(gid, name, email, profileUrl, callback) {
         gid: gid,
         profileUrl: profileUrl
     }).then((data) => {
-        console.log(data);
         callback(data.affectedRows);
     });
 }
@@ -118,7 +117,6 @@ exports.loginUser = function(gid, email, profileUrl, callback) {
 // Verification middleware -- takes in a role parameter
 exports.verifyAuthenticated = function () {
     return function (req, res, next) {
-        console.log("Request to protected resource made.");
         if (req.session.access_token) {
             authClient.setCredentials({
                 access_token: req.session.access_token,
@@ -129,7 +127,7 @@ exports.verifyAuthenticated = function () {
                     res.status(403).json({
                         success: false,
                         isAuthenticated: false,
-                        error: "Invalid login."
+                        error: "Invalid login. Check your login credentials or your internet connection."
                     }).end();
                 }
                 else {
@@ -147,6 +145,7 @@ exports.verifyAuthenticated = function () {
                         else {
                             // success!
                             req.user = {};
+                            req.isAuthenticated = true;
                             req.user.id = dbResult[0].id;
                             req.user.gid = googleResult.id;
                             req.user.email = googleResult.email;
@@ -169,6 +168,13 @@ exports.verifyAuthenticated = function () {
             }).end();
         }
     }
+}
+
+exports.revokeToken = function (access_token, cb) {
+    authClient.revokeToken(access_token, (err, body) => {
+        if (!err) { cb(false); }
+        else { cb(true); }
+    });
 }
 
 // Implicit enum for roles
