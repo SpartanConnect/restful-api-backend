@@ -39,9 +39,6 @@ app.use(cookieSession({
     secret: process.env.COOKIE_SECRET,
     keys: [process.env.COOKIE_SECRET]
 }));
-app.use(csurf({
-
-}));
 app.use(helmet());
 
 // --- Route API calls here! ---
