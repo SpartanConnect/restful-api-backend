@@ -6,6 +6,7 @@ var mysql = require('mysql');
 var helmet = require('helmet');
 var cookieParser = require('cookie-parser');
 var cookieSession = require('cookie-session');
+var cors = require('cors');
 
 // Configure environment variables
 require('dotenv').config();
@@ -41,8 +42,15 @@ app.use(cookieSession({
 }));
 app.use(helmet());
 
+var corsOptions = {
+    origin: process.env.FRONTEND_URL
+}
+
+// Protect POST requests from external sources
+app.post('*', cors(corsOptions));
+
 // --- Route API calls here! ---
-app.use('/api', auth);
+app.use('/api', cors(corsOptions), auth);
 app.use('/api', announcements);
 app.use('/api', users);
 app.use('/api', tags);
