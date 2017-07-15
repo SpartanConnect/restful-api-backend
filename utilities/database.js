@@ -10,7 +10,7 @@ databaseConnection.config.queryFormat = function (query, values) {
 
 exports.query = function(query, args) {
     return new Promise(function(resolve) {
-        console.log(query);
+        //console.log(query);
         databaseConnection.query(query, args, function(error, result) {
             if(error) {
                 throw error;
