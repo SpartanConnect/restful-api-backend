@@ -57,7 +57,8 @@ router.get('/users/login', (req, res) => {
                     // Check if user exists in database before!
                     auth.checkIfUserExists(access_token, refresh_token, (success, doesExist, isEmptyUser, data) => {
                         if (!success) {
-                            res.json(auth.generateAuthResponse(false, "Invalid token (profile info failed). Please try logging in through /users/login/generate again.", null));
+                            //res.json(auth.generateAuthResponse(false, "Invalid token (profile info failed). Please try logging in through /users/login/generate again.", null));
+                            res.redirect(process.env.FRONTEND_URL+frontendRelativeEndpoint+auth.errors.AUTH_COULD_NOT_RETRIEVE);
                             res.end();
                         } else {
                             if (data.hd === "lcusd.net" && !doesExist) {
