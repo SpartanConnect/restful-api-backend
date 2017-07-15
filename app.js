@@ -34,7 +34,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(cookieSession({
     name: 'session',
     maxAge: 3 * 24 * 60 * 60 * 1000,         // 3 days
-    secure: true,
+    secure: false,
     httpOnly: true,
     secret: process.env.COOKIE_SECRET
 }));

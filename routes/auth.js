@@ -9,6 +9,11 @@ router.get('/users/login/generate', (req, res) => {
     res.end();
 });
 
+router.get('/users/me', auth.verifyAuthenticated(), (req, res) => {
+    res.json(req.user);
+    res.end();
+})
+
 // Login logic -- all here!
 router.get('/users/login', (req, res) => {
     if (!req.query.code) {

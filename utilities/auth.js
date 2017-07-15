@@ -115,13 +115,69 @@ exports.loginUser = function(gid, email, profileUrl, callback) {
     });
 }
 
+// Verification middleware -- takes in a role parameter
+exports.verifyAuthenticated = function () {
+    return function (req, res, next) {
+        console.log("Request to protected resource made.");
+        if (req.session.access_token) {
+            authClient.setCredentials({
+                access_token: req.session.access_token,
+                refresh_token: req.session.refresh_token
+            });
+            authGetter.userinfo.v2.me.get((err, googleResult) => {
+                if (err) { 
+                    res.status(403).json({
+                        success: false,
+                        isAuthenticated: false,
+                        error: "Invalid login."
+                    }).end();
+                }
+                else {
+                    database.query("SELECT * FROM users WHERE gid = :gid", {
+                        gid: googleResult.id,
+                    }).then((dbResult) => {
+                        if (!dbResult.length) {
+                            // Not found in database
+                            res.status(403).json({
+                                success: false,
+                                isAuthenticated: false,
+                                error: "Invalid login. (user does not exist in backend)"
+                            }).end();
+                        }
+                        else {
+                            // success!
+                            req.user = {};
+                            req.user.id = dbResult[0].id;
+                            req.user.gid = googleResult.id;
+                            req.user.email = googleResult.email;
+                            req.user.name = googleResult.name;
+                            req.user.handle = dbResult[0].handle;
+                            req.user.rank = dbResult[0].rank;
+                            req.user.lastLogin = dbResult[0].lastLogin;
+                            req.user.profileUrl = dbResult[0].profileUrl;
+                            next();
+                        }
+                    });
+                }
+            });
+        } else {
+            // No access token found
+            res.status(403).json({
+                success: false,
+                isAuthenticated: false,
+                error: "User has not logged in."
+            }).end();
+        }
+    }
+}
+
 // Implicit enum for roles
-exports.roles = {
-    ROLE_SUPERADMIN: 0,
-    ROLE_MAINTENANCE: 1,
-    ROLE_ADMIN: 2,
-    ROLE_TEACHER: 3,
-    ROLE_UNAPPROVED: 4
+exports.ranks = {
+    RANK_SUPERADMIN: 0,
+    RANK_MAINTENANCE: 1,
+    RANK_ADMIN: 2,
+    RANK_TEACHER: 3,
+    RANK_UNAPPROVED: 4
 }
 
 // Utilize exports instead of module.exports every time
