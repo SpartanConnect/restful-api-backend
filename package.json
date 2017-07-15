@@ -12,5 +12,8 @@
     "express": "~4.15.2",
     "morgan": "~1.8.1",
     "mysql": "^2.13.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.2.0"
   }
 }
