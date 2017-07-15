@@ -32,22 +32,22 @@ router.get('/users/login', (req, res) => {
                 var id = jwt.decode(tokens.id_token);
                 if (Date.now() >= tokens.expiry_date) {
                     // Expired token! Query the user to login again!
-                    res.json(auth.generateAuthResponse(false, "Expired login. Please try logging in through /users/login/generate again.", tokens));
+                    res.json(auth.generateAuthResponse(false, "Expired login. Please try logging in through /users/login/generate again.", null));
                     res.end();
                 } else if (id.iss !== "accounts.google.com" && id.iss !== "https://accounts.google.com") {
-                    res.json(auth.generateAuthResponse(false, "Invalid token (wrong issuer). Please try logging in through /users/login/generate again.", tokens));
+                    res.json(auth.generateAuthResponse(false, "Invalid token (wrong issuer). Please try logging in through /users/login/generate again.", null));
                     res.end();
                 } else if (Date.now()/1000 >= id.exp) {
-                    res.json(auth.generateAuthResponse(false, "Expired login (origin: token). Please try logging in through /users/login/generate again.", tokens));
+                    res.json(auth.generateAuthResponse(false, "Expired login (origin: token). Please try logging in through /users/login/generate again.", null));
                     res.end();
                 } else if (id.aud !== process.env.GOOGLE_CLIENT_ID) {
-                    res.json(auth.generateAuthResponse(false, "Invalid token (invalid target). Please try logging in through /users/login/generate again.", tokens));
+                    res.json(auth.generateAuthResponse(false, "Invalid token (invalid target). Please try logging in through /users/login/generate again.", null));
                     res.end();
                 } else {
                     // Check if user exists in database before!
                     auth.checkIfUserExists(access_token, refresh_token, (success, doesExist, isEmptyUser, data) => {
                         if (!success) {
-                            res.json(auth.generateAuthResponse(false, "Invalid token (profile info failed). Please try logging in through /users/login/generate again.", tokens));
+                            res.json(auth.generateAuthResponse(false, "Invalid token (profile info failed). Please try logging in through /users/login/generate again.", null));
                             res.end();
                         } else {
                             if (data.hd === "lcusd.net" && !doesExist) {
@@ -62,7 +62,7 @@ router.get('/users/login', (req, res) => {
                                     } else {
                                         res.json(auth.generateAuthResponse(false, 
                                             "Validated token, but cannot create/login as an account (database error). Please log in with a proper lcusd.net account through /users/login/generate again to create a valid account. In addition, you can also ask an admin to invite a user through the admin panel.", 
-                                            tokens));
+                                            null));
                                         res.end();
                                     }
                                 });
@@ -78,7 +78,7 @@ router.get('/users/login', (req, res) => {
                                     } else {
                                         res.json(auth.generateAuthResponse(false, 
                                             "Validated token, but cannot create/login as an account (database error). Please log in with a proper lcusd.net account through /users/login/generate again to create a valid account. In addition, you can also ask an admin to invite a user through the admin panel.", 
-                                            tokens));
+                                            null));
                                     }
                                 });
                             } else if (doesExist && !isEmptyUser) {
@@ -93,13 +93,13 @@ router.get('/users/login', (req, res) => {
                                     } else {
                                         res.json(auth.generateAuthResponse(false, 
                                             "Validated token, but cannot create/login as an account (database error). Please log in with a proper lcusd.net account through /users/login/generate again to create a valid account. In addition, you can also ask an admin to invite a user through the admin panel.", 
-                                            tokens));
+                                            null));
                                     }
                                 });
                             } else {
                                 res.json(auth.generateAuthResponse(false, 
                                     "Validated token, but cannot create/login as an account. Please log in with a proper lcusd.net account through /users/login/generate again to create a valid account. In addition, you can also ask an admin to invite a user through the admin panel.", 
-                                    tokens));
+                                    null));
                             }
                         }
                         
