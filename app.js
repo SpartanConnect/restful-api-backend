@@ -36,7 +36,8 @@ app.use(cookieSession({
     maxAge: 3 * 24 * 60 * 60 * 1000,         // 3 days
     secure: false,
     httpOnly: true,
-    secret: process.env.COOKIE_SECRET
+    secret: process.env.COOKIE_SECRET,
+    keys: [process.env.COOKIE_SECRET]
 }));
 app.use(helmet());
 
