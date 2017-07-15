@@ -172,7 +172,7 @@ exports.verifyAuthenticated = function () {
 
 exports.revokeToken = function (access_token, cb) {
     authClient.revokeToken(access_token, (err, body) => {
-        if (!err) { cb(false); }
+        if (err) { cb(false); }
         else { cb(true); }
     });
 }
