@@ -70,7 +70,7 @@ exports.checkIfUserExists = function(access_token, refresh_token, callback) {
             }).then((data) => {
                 if (!data.length) callback(true, false, false, res);
                 else {
-                    callback(true, (data.length === 1 ? true : false), (data[0].gid === ""), res);
+                    callback(true, (data.length === 1 ? true : false), (data[0].gid === "" || data[0].gid === null), res);
                 }
             });
         }
