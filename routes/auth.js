@@ -10,7 +10,11 @@ router.get('/users/login/generate', (req, res) => {
 });
 
 router.get('/users/me', auth.verifyAuthenticated(), (req, res) => {
-    res.json(req.user);
+    let userObject = req.user;
+    delete userObject.gid;
+    userObject.isAuthenticated = true;
+    userObject.success = true;
+    res.json(userObject);
     res.end();
 })
 
