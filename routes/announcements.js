@@ -158,8 +158,8 @@ router.post('/announcements/', announcementSubmitHandler);
 
 router.get('/announcements/current', function (req, res) {
     //console.log(new Date());
-    req.query.startDate = new Date();
-    req.query.endDate = new Date();
+    req.query.startDate = new Date().setHours(0, 0, 0, 0);
+    req.query.endDate = new Date().setHours(0, 0 ,0 ,0);
     req.query.status = 1;
     announcementRequestHandler(req, res);
 });
