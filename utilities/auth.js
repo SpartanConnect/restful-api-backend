@@ -68,7 +68,10 @@ exports.checkIfUserExists = function(access_token, refresh_token, callback) {
                 gid: res.id,
                 email: res.email
             }).then((data) => {
-                callback(true, (data.length === 1 ? true : false), false, res);
+                if (!data.length) callback(true, false, false, res);
+                else {
+                    callback(true, (data.length === 1 ? true : false), (data[0].gid === ""), res);
+                }
             });
         }
     });
@@ -95,6 +98,7 @@ exports.updateUsertoFilled = function(gid, name, email, profileUrl, callback) {
         gid: gid,
         profileUrl: profileUrl
     }).then((data) => {
+        console.log(data);
         callback(data.affectedRows);
     });
 }
