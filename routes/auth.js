@@ -4,11 +4,16 @@ var jwt = require('jsonwebtoken');
 
 var auth = require('../utilities/auth');
 
+function generateCookies(access_token, refresh_token, cb) {
+    cb(true);
+}
+
 router.get('/users/login/generate', (req, res) => {
     res.redirect(auth.generateConsentUrl());
     res.end();
 });
 
+// Login logic -- all here!
 router.get('/users/login', (req, res) => {
     if (!req.query.code) {
         res.json(auth.generateAuthResponse(false, "Cannot access this function directly. Please go to /users/login/generate to generate an authorization link.", null));
@@ -48,7 +53,7 @@ router.get('/users/login', (req, res) => {
                                 // create a new user (lcusd.net)
                                 auth.generateFilledUser(data.id, data.name, data.email, data.picture, (success) => {
                                     if (success) {
-                                        auth.setLoginCookie(access_token, refresh_token, (success) => {
+                                        generateCookies(access_token, refresh_token, (success) => {
                                             if (success) {
                                                 res.json(auth.generateAuthResponse(true, "Authenticated. Congratulations.", null));
                                                 res.end();
@@ -68,7 +73,7 @@ router.get('/users/login', (req, res) => {
                                 // fill the user if !lcusd.net
                                 auth.updateUsertoFilled(data.id, data.name, data.email, data.picture, (success) => {
                                     if (success) {
-                                        auth.setLoginCookie(access_token, refresh_token, (success) => {
+                                        generateCookies(access_token, refresh_token, (success) => {
                                             if (success) {
                                                 res.json(auth.generateAuthResponse(true, "Authenticated. Congratulations.", null));
                                                 res.end();
@@ -87,7 +92,7 @@ router.get('/users/login', (req, res) => {
                                 // log in the user regularly
                                 auth.loginUser(data.id, data.email, data.picture, (success) => {
                                     if (success) {
-                                        auth.setLoginCookie(access_token, refresh_token, (success) => {
+                                        generateCookies(access_token, refresh_token, (success) => {
                                             if (success) {
                                                 res.json(auth.generateAuthResponse(true, "Authenticated. Congratulations.", null));
                                                 res.end();

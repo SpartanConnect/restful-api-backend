@@ -3,6 +3,9 @@ var path = require('path');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 var mysql = require('mysql');
+var helmet = require('helmet');
+var cookieParser = require('cookie-parser');
+var cookieSession = require('cookie-session');
 
 // Configure environment variables
 require('dotenv').config();
@@ -27,6 +30,15 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(cookieSession({
+    name: 'session',
+    maxAge: 3 * 24 * 60 * 60 * 1000,         // 3 days
+    secure: true,
+    httpOnly: true,
+    secret: process.env.COOKIE_SECRET
+}));
+app.use(helmet());
 
 // --- Route API calls here! ---
 app.use('/api', auth);
