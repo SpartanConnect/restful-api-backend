@@ -45,9 +45,14 @@ app.use(cookieSession({
     secret: process.env.COOKIE_SECRET,
     keys: [process.env.COOKIE_SECRET]
 }));
+// Generate a secure _csrf token
+// This is not what we pass in from the Angular app, however.
 app.use(csurf({
     cookie: true
 }));
+
+// Set XSRF-TOKEN cookie to a generated and valid csrf token
+// Workaround, but it works.
 app.use((req, res, next) => {
     res.cookie("XSRF-TOKEN", req.csrfToken());
     return next();
