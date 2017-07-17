@@ -6,6 +6,8 @@ var mysql = require('mysql');
 var helmet = require('helmet');
 var cookieParser = require('cookie-parser');
 var cookieSession = require('cookie-session');
+var csurf = require('csurf');
+var cors = require('cors');
 
 // Configure environment variables
 require('dotenv').config();
@@ -31,6 +33,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    optionsSuccessStatus: 200
+}));
+app.use(csurf({
+    cookie: {
+        key: 'XSRF-TOKEN',
+        secure: false,
+        httpOnly: false,
+        maxAge: 60 * 60
+    }
+}));
 app.use(cookieSession({
     name: 'session',
     maxAge: 3 * 24 * 60 * 60 * 1000,         // 3 days
