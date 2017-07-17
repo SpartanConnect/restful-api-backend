@@ -37,14 +37,6 @@ app.use(cors({
     origin: process.env.FRONTEND_URL,
     optionsSuccessStatus: 200
 }));
-app.use(csurf({
-    cookie: {
-        key: 'XSRF-TOKEN',
-        secure: false,
-        httpOnly: false,
-        maxAge: 60 * 60
-    }
-}));
 app.use(cookieSession({
     name: 'session',
     maxAge: 3 * 24 * 60 * 60 * 1000,         // 3 days
@@ -53,6 +45,13 @@ app.use(cookieSession({
     secret: process.env.COOKIE_SECRET,
     keys: [process.env.COOKIE_SECRET]
 }));
+app.use(csurf({
+    cookie: true
+}));
+app.use((req, res, next) => {
+    res.cookie("XSRF-TOKEN", req.csrfToken());
+    return next();
+});
 app.use(helmet());
 
 // --- Route API calls here! ---
@@ -68,6 +67,7 @@ app.use('/docs', function(req, res, next) {
 app.use('*', function(req, res, next) {
     res.status(404).redirect('/docs');
 });
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
