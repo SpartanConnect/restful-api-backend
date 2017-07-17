@@ -186,5 +186,21 @@ exports.ranks = {
     RANK_UNAPPROVED: 4
 }
 
+// Enum for errors
+exports.errors = {
+    AUTH_SUCCESS_LOGIN: 100,
+    AUTH_NOT_LOGGED_IN: 101,
+    AUTH_INVALID_AUTH_CODE: 102,
+    AUTH_EXPIRED_TOKEN: 103,
+    AUTH_WRONG_ISSUER: 104,
+    AUTH_WRONG_CLIENT_ID: 105,
+    AUTH_NETWORK_UNAVAILABLE: 106,
+    AUTH_COULD_NOT_RETRIEVE: 107,
+    AUTH_ACCOUNT_CREATION_FAILURE: 108,
+    AUTH_INCORRECT_DOMAIN: 109,
+    AUTH_IRREVOCABLE_LOGOUT: 110,
+    AUTH_SUCCESS_LOGOUT: 200
+}
+
 // Utilize exports instead of module.exports every time
 module.exports = exports;

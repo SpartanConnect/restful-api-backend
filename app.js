@@ -6,6 +6,8 @@ var mysql = require('mysql');
 var helmet = require('helmet');
 var cookieParser = require('cookie-parser');
 var cookieSession = require('cookie-session');
+var csurf = require('csurf');
+var cors = require('cors');
 
 // Configure environment variables
 require('dotenv').config();
@@ -31,6 +33,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    optionsSuccessStatus: 200
+}));
 app.use(cookieSession({
     name: 'session',
     maxAge: 3 * 24 * 60 * 60 * 1000,         // 3 days
@@ -39,6 +45,18 @@ app.use(cookieSession({
     secret: process.env.COOKIE_SECRET,
     keys: [process.env.COOKIE_SECRET]
 }));
+// Generate a secure _csrf token
+// This is not what we pass in from the Angular app, however.
+app.use(csurf({
+    cookie: true
+}));
+
+// Set XSRF-TOKEN cookie to a generated and valid csrf token
+// Workaround, but it works.
+app.use((req, res, next) => {
+    res.cookie("XSRF-TOKEN", req.csrfToken());
+    return next();
+});
 app.use(helmet());
 
 // --- Route API calls here! ---
@@ -48,6 +66,13 @@ app.use('/api', users);
 app.use('/api', tags);
 app.use('/api', notifications);
 app.use('/api', events);
+app.use('/docs', function(req, res, next) {
+    res.status(200).redirect('https://spartanconnect.github.io/sc-readthedocs/');
+})
+app.use('*', function(req, res, next) {
+    res.status(404).redirect('/docs');
+});
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
