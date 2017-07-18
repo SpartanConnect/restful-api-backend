@@ -43,7 +43,8 @@ app.use(cookieSession({
     secure: false,
     httpOnly: true,
     secret: process.env.COOKIE_SECRET,
-    keys: [process.env.COOKIE_SECRET]
+    keys: [process.env.COOKIE_SECRET],
+    domain: process.env.FRONTEND_BASE
 }));
 // Generate a secure _csrf token
 // This is not what we pass in from the Angular app, however.
@@ -54,7 +55,10 @@ app.use(csurf({
 // Set XSRF-TOKEN cookie to a generated and valid csrf token
 // Workaround, but it works.
 app.use((req, res, next) => {
-    res.cookie("XSRF-TOKEN", req.csrfToken());
+    res.cookie("XSRF-TOKEN", req.csrfToken(), {
+        domain: process.env.FRONTEND_BASE,
+        maxAge: 3 * 24 * 60 * 60 * 1000
+    });
     return next();
 });
 app.use(helmet());
