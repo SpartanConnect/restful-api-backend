@@ -35,7 +35,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(cors({
     origin: process.env.FRONTEND_URL,
-    optionsSuccessStatus: 200
+    optionsSuccessStatus: 200,
+    credentials: true
 }));
 app.use(cookieSession({
     name: 'session',
