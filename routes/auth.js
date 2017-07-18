@@ -121,11 +121,12 @@ router.get('/users/login', (req, res) => {
 
 router.get('/users/logout', auth.verifyAuthenticated(), (req, res) => {
     if (!req.isAuthenticated) {
+        req.session = null;
         res.redirect(process.env.FRONTEND_URL+frontendRelativeEndpoint+auth.errors.AUTH_NOT_LOGGED_IN);
         res.end();
     } else {
         auth.revokeToken(req.session.access_token, (success) => {
-            if (!success) { res.redirect(process.env.FRONTEND_URL+frontendRelativeEndpoint+auth.errors.AUTH_IRREVOCABLE_LOGOUT); res.end(); }
+            if (!success) { req.session = null; res.redirect(process.env.FRONTEND_URL+frontendRelativeEndpoint+auth.errors.AUTH_IRREVOCABLE_LOGOUT); res.end(); }
             else {
                 req.session = null;
                 res.redirect(process.env.FRONTEND_URL+frontendRelativeEndpoint+auth.errors.AUTH_SUCCESS_LOGOUT);
