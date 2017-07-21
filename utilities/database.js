@@ -9,13 +9,13 @@ databaseConnection.config.queryFormat = function (query, values) {
 };
 
 exports.query = function(query, args) {
-    return new Promise(function(resolve) {
+    return new Promise(function(resolve, reject) {
         //console.log(query);
         databaseConnection.query(query, args, function(error, result) {
             if(error) {
-                throw error;
+                reject (error);
             } else {
-                resolve(result);
+                resolve (result);
             }
         });
     });

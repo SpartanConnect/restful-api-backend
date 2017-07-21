@@ -116,6 +116,7 @@ exports.loginUser = function(gid, email, profileUrl, callback) {
 
 // Verification middleware -- takes in a role parameter
 exports.verifyAuthenticated = function () {
+    console.log('hit verify auth');
     return function (req, res, next) {
         if (req.session.access_token) {
             authClient.setCredentials({
@@ -154,7 +155,7 @@ exports.verifyAuthenticated = function () {
                             req.user.rank = dbResult[0].rank;
                             req.user.lastLogin = dbResult[0].lastLogin;
                             req.user.profileUrl = dbResult[0].profileUrl;
-                            next();
+                            return next();
                         }
                     });
                 }
