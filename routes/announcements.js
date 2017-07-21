@@ -99,11 +99,42 @@ function announcementSubmitHandler (req, res) {
                     dbUtility.query('SELECT creatorId, status FROM announcements WHERE id = :id', {id:req.params.id}).then ((announcementInfo) => {
                         if (req.user.id == announcementInfo[0].creatorId || req.user.rank <= 2) {
                             //The user is the creator or an admin
+                            dbUtility.query('SELECT rank FROM users WHERE id=(SELECT creatorId FROM announcements where id = :id)', {id: req.params.id}).then ((creatorRank) => {
+
+                            });
                             if (req.user.id == announcementInfo[0].creatorId && (req.body.status == 0 || req.body.status == 3)) {
-                                //The user is trying to edit their own announcement and they are either 
+                                //The user is trying to edit their own announcement and they are either removing it or making it pending.
+                                if (typeof req.body.tags !== 'undefined') {
+                                    //Tags should be updated
+                                    announcements.updateTags(req.params.id, req.body.tags).then((updateTagResults) => {
+                                        announcementUpdateResult.tagDeleteResult = updateTagResults.deleteResult;
+                                        announcementUpdateResult.tagCreateResult = updateTagResults.createResult;
+                                        if (announcementUpdateResult.tagDeleteResult.affectedRows == 0) {
+                                            //The tags haven't been deleted. Throw error
+                                            res.json({'success':false,'reason':'The tags that were connected to the announcement were not deleted.'});
+                                            res.end();
+                                        }
+                                        else if (announcementUpdateResult.tagCreateResult.affectedRows == 0) {
+                                            //The tags have not be re-created Throw error
+                                            res.json({'success':false, 'reason':'The tags that you indicated were not applied.'});
+                                            res.end();
+                                        }
+                                        else if (typeof req.body.title === 'undefined' &&
+                                                typeof req.body.description === 'undefined' &&
+                                                typeof req.body.startDate === 'undefined' &&
+                                                typeof req.body.endDate === 'undefined' &&
+                                                typeof req.body.adminId === 'undefined' &&
+                                                typeof req.body.status === 'undefined') {
+                                            //The user only wants to update the tags. If this is successful, then throw success
+                                            res.json({'success':true});
+                                            res.end();
+                                        }
+                                    });
+                                }
 
                             }
-                            if (announcementInfo[0].status != 1 && req.body.status != 1) {
+                            else if (req.user.rank < creatorRank[0].rank) {
+                                //User is trying to edit someone elses announcement. They must be of a higher level than the creator
                                 if (typeof req.body.tags !== 'undefined') {
                                     //Tags should be updated
                                     announcements.updateTags(req.params.id, req.body.tags).then((updateTagResults) => {
@@ -132,8 +163,10 @@ function announcementSubmitHandler (req, res) {
                                     });
                                 }
                             }
+                            if (announcementInfo[0].status != 1 && req.body.status != 1) {
+                            }
                             else {
-                                res.json({success:false, reason:'An announcement that has been approved cannot be edited if the status is not also being set to unapproved.'});
+                                res.json({success:false, reason:'You cannot edit your announcement it has been approved unless the status is not also being set to unapproved.'});
                                 res.end();
                             }
                         }
