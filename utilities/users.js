@@ -120,9 +120,9 @@ exports.updateUser = (id, name, handle, /*email,*/ rank) => {
 
 };
 
-exports.createUser = (name, handle, email) => {
-    var statement = 'INSERT INTO users (name, handle, email, rank) VALUES (:name, :handle, :email, 99);';
-    var statementParameters = {name: name, handle:handle, email:email};
+exports.createUser = (name, email) => {
+    var statement = 'INSERT INTO users (name, email, rank) VALUES (:name, :email, 99);';
+    var statementParameters = {name: name, email:email};
 
     return database.query(statement, statementParameters);
 };

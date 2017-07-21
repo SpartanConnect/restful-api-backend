@@ -105,11 +105,11 @@ exports.updateUsertoFilled = function(gid, name, email, profileUrl, callback) {
 
 exports.loginUser = function(gid, email, profileUrl, callback) {
     database.query(
-        "UPDATE users SET profileUrl = :profileUrl, lastLogin = CURRENT_TIMESTAMP, email = :email WHERE gid = :gid", {
-        gid: gid,
-        email: email,
-        profileUrl: profileUrl
-    }).then((data) => {
+        'UPDATE users SET profileUrl = :profileUrl, lastLogin = CURRENT_TIMESTAMP, email = :email WHERE gid = :gid', {
+            gid: gid,
+            email: email,
+            profileUrl: profileUrl
+        }).then((data) => {
         callback(data.affectedRows);
     });
 }
