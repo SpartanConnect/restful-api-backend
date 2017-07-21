@@ -118,6 +118,8 @@ exports.createAnnouncement = (title, description, creatorId, startDate, endDate,
             else {
                 resolve ({'announcementCreate':announcementCreateResult});
             }
+        }).catch((err) => {
+            console.log(err);
         });
     });
 };

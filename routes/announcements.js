@@ -2,8 +2,10 @@ var express = require('express');
 var router = express.Router();
 
 var announcements = require('../utilities/announcements');
+var authUtilities = require('./../utilities/auth');
 var notificationRoutes = require('./notifications');
 var eventRoutes = require('./events');
+var dbUtility = require('./../utilities/database');
 
 function announcementRequestHandler (req, res) {
     /*eslint-disable indent */
@@ -30,12 +32,12 @@ function announcementRequestHandler (req, res) {
 }
 
 function announcementSubmitHandler (req, res) {
-    console.log('Hit submit handler!');
+    // console.log('Hit submit handler!');
     if (typeof req.params.id === 'undefined') {
         //The id that is passed as a URL parameter is undefined (not provided) and thus the request is to create a new announcement
         if (typeof req.body.title !== 'undefined' && 
             typeof req.body.description !== 'undefined' && 
-            typeof req.body.creatorId !== 'undefined' && 
+            /* typeof req.body.creatorId !== 'undefined' &&  */
             typeof req.body.startDate !== 'undefined' && 
             typeof req.body.endDate !== 'undefined') {
             //Sufficient information has been provided to create the announcement
@@ -43,7 +45,7 @@ function announcementSubmitHandler (req, res) {
             console.log(req.body.tags);
             announcements.createAnnouncement(req.body.title,
                                              req.body.description,
-                                             req.body.creatorId,
+                                             req.user.id,
                                              req.body.startDate,
                                              req.body.endDate,
                                              req.body.tags).then((result) => {
@@ -76,7 +78,6 @@ function announcementSubmitHandler (req, res) {
             typeof req.body.description === 'undefined' &&
             typeof req.body.startDate === 'undefined' &&
             typeof req.body.endDate === 'undefined' &&
-            typeof req.body.adminId === 'undefined' &&
             typeof req.body.status === 'undefined' &&
             typeof req.body.tags === 'undefined') {
             //No data has been submitted for changes. Throw error
@@ -85,47 +86,74 @@ function announcementSubmitHandler (req, res) {
         }
         else {
             //Some data has beem provided.
+            //User wants to edit
             if (isNaN(parseInt(req.params.id))) {
                 //An invalid user Id has been provided to edit. Reject.
                 res.json({'success':false, 'reason':'An invalid userId has been provided to edit.'});
                 res.end();
             }
             else {
-                //The id provided is defined, data has been provided to update, and the id that is provided is valid.
-                var announcementUpdateResult = {};
+                //Valid announcement ID to edit
+                if (req.user.rank <=3) {
+                    //The user has a rank sufficient to edit the announcement.
+                    dbUtility.query('SELECT creatorId, status FROM announcements WHERE id = :id', {id:req.params.id}).then ((announcementInfo) => {
+                        if (req.user.id == announcementInfo[0].creatorId || req.user.rank <= 2) {
+                            //The user is the creator or an admin
+                            if (req.user.id == announcementInfo[0].creatorId && (req.body.status == 0 || req.body.status == 3)) {
+                                //The user is trying to edit their own announcement and they are either 
 
-                if (typeof req.body.tags !== 'undefined') {
-                    //Tags should be updated
-                    announcements.updateTags(req.params.id, req.body.tags).then((updateTagResults) => {
-                        announcementUpdateResult.tagDeleteResult = updateTagResults.deleteResult;
-                        announcementUpdateResult.tagCreateResult = updateTagResults.createResult;
-                        if (announcementUpdateResult.tagDeleteResult.affectedRows == 0) {
-                            //The tags haven't been deleted. Throw error
-                            res.json({'success':false,'reason':'The tags that were connected to the announcement were not deleted.'});
-                            res.end();
+                            }
+                            if (announcementInfo[0].status != 1 && req.body.status != 1) {
+                                if (typeof req.body.tags !== 'undefined') {
+                                    //Tags should be updated
+                                    announcements.updateTags(req.params.id, req.body.tags).then((updateTagResults) => {
+                                        announcementUpdateResult.tagDeleteResult = updateTagResults.deleteResult;
+                                        announcementUpdateResult.tagCreateResult = updateTagResults.createResult;
+                                        if (announcementUpdateResult.tagDeleteResult.affectedRows == 0) {
+                                            //The tags haven't been deleted. Throw error
+                                            res.json({'success':false,'reason':'The tags that were connected to the announcement were not deleted.'});
+                                            res.end();
+                                        }
+                                        else if (announcementUpdateResult.tagCreateResult.affectedRows == 0) {
+                                            //The tags have not be re-created Throw error
+                                            res.json({'success':false, 'reason':'The tags that you indicated were not applied.'});
+                                            res.end();
+                                        }
+                                        else if (typeof req.body.title === 'undefined' &&
+                                                typeof req.body.description === 'undefined' &&
+                                                typeof req.body.startDate === 'undefined' &&
+                                                typeof req.body.endDate === 'undefined' &&
+                                                typeof req.body.adminId === 'undefined' &&
+                                                typeof req.body.status === 'undefined') {
+                                            //The user only wants to update the tags. If this is successful, then throw success
+                                            res.json({'success':true});
+                                            res.end();
+                                        }
+                                    });
+                                }
+                            }
+                            else {
+                                res.json({success:false, reason:'An announcement that has been approved cannot be edited if the status is not also being set to unapproved.'});
+                                res.end();
+                            }
                         }
-                        else if (announcementUpdateResult.tagCreateResult.affectedRows == 0) {
-                            //The tags have not be re-created Throw error
-                            res.json({'success':false, 'reason':'The tags that you indicated were not applied.'});
-                            res.end();
-                        }
-                        else if (typeof req.body.title === 'undefined' &&
-                                 typeof req.body.description === 'undefined' &&
-                                 typeof req.body.startDate === 'undefined' &&
-                                 typeof req.body.endDate === 'undefined' &&
-                                 typeof req.body.adminId === 'undefined' &&
-                                 typeof req.body.status === 'undefined') {
-                            //The user only wants to update the tags. If this is successful, then throw success
-                            res.json({'success':true});
+                        else {
+                            res.json({success:false, reason:'You do not have sufficient privileges to edit this announcement.'});
                             res.end();
                         }
                     });
                 }
+                else {
+                    res.json({success:false, reason:'You do not have sufficient privileges to edit this announcement.'});
+                    res.end();
+                }
+                //The id provided is defined, data has been provided to update, and the id that is provided is valid.
+                var announcementUpdateResult = {};
+
                 if (!(typeof req.body.title === 'undefined' &&
                     typeof req.body.description === 'undefined' &&
                     typeof req.body.startDate === 'undefined' &&
                     typeof req.body.endDate === 'undefined' &&
-                    typeof req.body.adminId === 'undefined' &&
                     typeof req.body.status === 'undefined')) {
                     //user wants to update an announcement
                     /* eslint-disable indent */
@@ -134,7 +162,7 @@ function announcementSubmitHandler (req, res) {
                                                      req.body.description,
                                                      req.body.startDate,
                                                      req.body.endDate,
-                                                     req.body.adminId,
+                                                     req.user.id,
                                                      req.body.status,
                                                      req.body.tags).then((updateResult) => {
                         if (updateResult.affectedRows == 1) {
@@ -154,7 +182,7 @@ function announcementSubmitHandler (req, res) {
 
 router.get('/announcements/', announcementRequestHandler);
 
-router.post('/announcements/', announcementSubmitHandler);
+router.post('/announcements/', authUtilities.verifyAuthenticated(), announcementSubmitHandler);
 
 router.get('/announcements/current', function (req, res) {
     //console.log(new Date());
@@ -175,7 +203,7 @@ router.get('/announcements/:announcementId/deadlines', (req, res) => {
     eventRoutes.eventRequestHandler (req, res);
 });
 
-router.post('/announcements/:id', announcementSubmitHandler);
+router.post('/announcements/:id', authUtilities.verifyAuthenticated(), announcementSubmitHandler);
 
 router.get('/announcements/:id', announcementRequestHandler);
 

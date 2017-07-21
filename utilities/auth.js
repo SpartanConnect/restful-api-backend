@@ -26,6 +26,7 @@ var google = require('googleapis');
 var OAuth2 = google.auth.OAuth2;
 
 var database = require('./database');
+var enums = require('./enums');
 
 var authClient = new OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -176,31 +177,6 @@ exports.revokeToken = function (access_token, cb) {
         if (err) { cb(false); }
         else { cb(true); }
     });
-}
-
-// Implicit enum for roles
-exports.ranks = {
-    RANK_SUPERADMIN: 0,
-    RANK_MAINTENANCE: 1,
-    RANK_ADMIN: 2,
-    RANK_TEACHER: 3,
-    RANK_UNAPPROVED: 4
-}
-
-// Enum for errors
-exports.errors = {
-    AUTH_SUCCESS_LOGIN: 100,
-    AUTH_NOT_LOGGED_IN: 101,
-    AUTH_INVALID_AUTH_CODE: 102,
-    AUTH_EXPIRED_TOKEN: 103,
-    AUTH_WRONG_ISSUER: 104,
-    AUTH_WRONG_CLIENT_ID: 105,
-    AUTH_NETWORK_UNAVAILABLE: 106,
-    AUTH_COULD_NOT_RETRIEVE: 107,
-    AUTH_ACCOUNT_CREATION_FAILURE: 108,
-    AUTH_INCORRECT_DOMAIN: 109,
-    AUTH_IRREVOCABLE_LOGOUT: 110,
-    AUTH_SUCCESS_LOGOUT: 200
 }
 
 // Utilize exports instead of module.exports every time
