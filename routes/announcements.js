@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var announcements = require('../utilities/announcements');
-var authUtilities = require('./../utilities/auth');
+var authUtilities = require('./../utilities/auth'); //eslint-disable-line spellcheck/spell-checker
 var notificationRoutes = require('./notifications');
 var eventRoutes = require('./events');
 var dbUtility = require('./../utilities/database');
@@ -95,83 +95,71 @@ function announcementSubmitHandler (req, res) {
             else {
                 //Valid announcement ID to edit
                 if (req.user.rank <=3) {
-                    //The user has a rank sufficient to edit the announcement.
-                    dbUtility.query('SELECT creatorId, status FROM announcements WHERE id = :id', {id:req.params.id}).then ((announcementInfo) => {
-                        if (req.user.id == announcementInfo[0].creatorId || req.user.rank <= 2) {
-                            //The user is the creator or an admin
-                            dbUtility.query('SELECT rank FROM users WHERE id=(SELECT creatorId FROM announcements where id = :id)', {id: req.params.id}).then ((creatorRank) => {
-
-                            });
-                            if (req.user.id == announcementInfo[0].creatorId && (req.body.status == 0 || req.body.status == 3)) {
-                                //The user is trying to edit their own announcement and they are either removing it or making it pending.
-                                if (typeof req.body.tags !== 'undefined') {
-                                    //Tags should be updated
-                                    announcements.updateTags(req.params.id, req.body.tags).then((updateTagResults) => {
-                                        announcementUpdateResult.tagDeleteResult = updateTagResults.deleteResult;
-                                        announcementUpdateResult.tagCreateResult = updateTagResults.createResult;
-                                        if (announcementUpdateResult.tagDeleteResult.affectedRows == 0) {
-                                            //The tags haven't been deleted. Throw error
-                                            res.json({'success':false,'reason':'The tags that were connected to the announcement were not deleted.'});
-                                            res.end();
-                                        }
-                                        else if (announcementUpdateResult.tagCreateResult.affectedRows == 0) {
-                                            //The tags have not be re-created Throw error
-                                            res.json({'success':false, 'reason':'The tags that you indicated were not applied.'});
-                                            res.end();
-                                        }
-                                        else if (typeof req.body.title === 'undefined' &&
-                                                typeof req.body.description === 'undefined' &&
-                                                typeof req.body.startDate === 'undefined' &&
-                                                typeof req.body.endDate === 'undefined' &&
-                                                typeof req.body.adminId === 'undefined' &&
-                                                typeof req.body.status === 'undefined') {
-                                            //The user only wants to update the tags. If this is successful, then throw success
-                                            res.json({'success':true});
-                                            res.end();
-                                        }
-                                    });
-                                }
-
+                    //The user has a rank sufficient to edit announcements.
+                    var announcementInfo = dbUtility.query('SELECT creatorId, status FROM announcements WHERE id = :id', {id:req.params.id});
+                    var creatorInfo = dbUtility.query('SELECT rank FROM users WHERE id=(SELECT creatorId FROM announcements WHERE id = :id)', {id: req.params.id});
+                    Promise.all([announcementInfo, creatorInfo]).then ((announcementCreatorInfo) => {
+                        let announcementInfo = announcementCreatorInfo[0];
+                        let creatorInfo = announcementCreatorInfo[1];
+                        let endStatus = req.body.status ? req.body.status : announcementInfo[0].status;
+                        if ((req.user.id == announcementInfo[0].creatorId && (endStatus == 0 || endStatus == 3 || announcementInfo[0].status == 2)) || //User is creator and wants to edit own announcement and wants to set to pending or remove it
+                            (req.user.rank <= 2 && req.user.rank <= creatorInfo[0].rank)) { //User is an admin and is trying to edit or approve an announcement created by someone of equal or lower rank.
+                            if (typeof req.body.tags !== 'undefined') {
+                                //Tags should be updated
+                                announcements.updateTags(req.params.id, req.body.tags).then((updateTagResults) => {
+                                    announcementUpdateResult.tagDeleteResult = updateTagResults.deleteResult;
+                                    announcementUpdateResult.tagCreateResult = updateTagResults.createResult;
+                                    if (announcementUpdateResult.tagDeleteResult.affectedRows == 0) {
+                                        //The tags haven't been deleted. Throw error
+                                        res.json({'success':false,'reason':'The tags that were connected to the announcement were not deleted.'});
+                                        res.end();
+                                    }
+                                    else if (announcementUpdateResult.tagCreateResult.affectedRows == 0) {
+                                        //The tags have not be re-created Throw error
+                                        res.json({'success':false, 'reason':'The tags that you indicated were not applied.'});
+                                        res.end();
+                                    }
+                                    else if (typeof req.body.title === 'undefined' &&
+                                            typeof req.body.description === 'undefined' &&
+                                            typeof req.body.startDate === 'undefined' &&
+                                            typeof req.body.endDate === 'undefined' &&
+                                            typeof req.body.adminId === 'undefined' &&
+                                            typeof req.body.status === 'undefined') {
+                                        //The user only wants to update the tags. If this is successful, then throw success
+                                        res.json({'success':true});
+                                        res.end();
+                                    }
+                                });
                             }
-                            else if (req.user.rank < creatorRank[0].rank) {
-                                //User is trying to edit someone elses announcement. They must be of a higher level than the creator
-                                if (typeof req.body.tags !== 'undefined') {
-                                    //Tags should be updated
-                                    announcements.updateTags(req.params.id, req.body.tags).then((updateTagResults) => {
-                                        announcementUpdateResult.tagDeleteResult = updateTagResults.deleteResult;
-                                        announcementUpdateResult.tagCreateResult = updateTagResults.createResult;
-                                        if (announcementUpdateResult.tagDeleteResult.affectedRows == 0) {
-                                            //The tags haven't been deleted. Throw error
-                                            res.json({'success':false,'reason':'The tags that were connected to the announcement were not deleted.'});
-                                            res.end();
-                                        }
-                                        else if (announcementUpdateResult.tagCreateResult.affectedRows == 0) {
-                                            //The tags have not be re-created Throw error
-                                            res.json({'success':false, 'reason':'The tags that you indicated were not applied.'});
-                                            res.end();
-                                        }
-                                        else if (typeof req.body.title === 'undefined' &&
-                                                typeof req.body.description === 'undefined' &&
-                                                typeof req.body.startDate === 'undefined' &&
-                                                typeof req.body.endDate === 'undefined' &&
-                                                typeof req.body.adminId === 'undefined' &&
-                                                typeof req.body.status === 'undefined') {
-                                            //The user only wants to update the tags. If this is successful, then throw success
-                                            res.json({'success':true});
-                                            res.end();
-                                        }
-                                    });
-                                }
-                            }
-                            if (announcementInfo[0].status != 1 && req.body.status != 1) {
-                            }
-                            else {
-                                res.json({success:false, reason:'You cannot edit your announcement it has been approved unless the status is not also being set to unapproved.'});
-                                res.end();
+                            if (!(typeof req.body.title === 'undefined' &&
+                                typeof req.body.description === 'undefined' &&
+                                typeof req.body.startDate === 'undefined' &&
+                                typeof req.body.endDate === 'undefined' &&
+                                typeof req.body.adminId === 'undefined' &&
+                                typeof req.body.status === 'undefined')) {
+                                //user wants to update an announcement
+                                /* eslint-disable indent */
+                                announcements.updateAnnouncement(req.params.id,
+                                                                req.body.title,
+                                                                req.body.description,
+                                                                req.body.startDate,
+                                                                req.body.endDate,
+                                                                req.body.adminId,
+                                                                req.body.status,
+                                                                req.body.tags).then((updateResult) => {
+                                    if (updateResult.affectedRows == 1) {
+                                        res.json({'success':true});
+                                        res.end();
+                                    }
+                                    else {
+                                        res.json({'success':false, 'reason':'The changes that were submitted affected no announcements.'});
+                                        res.end();
+                                    }
+                                });
                             }
                         }
                         else {
-                            res.json({success:false, reason:'You do not have sufficient privileges to edit this announcement.'});
+                            res.json({success:false, reason:'You do not have sufficient privileges to edit this announcement. This may be due to you trying to edit your own, already approved, announcement without also removing it or requesting approval again.'});
                             res.end();
                         }
                     });
