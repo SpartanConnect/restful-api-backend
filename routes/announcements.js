@@ -120,7 +120,7 @@ function announcementSubmitHandler (req, res) {
                         });
 
                         let endStatus = req.body.status ? req.body.status : announcementInfo[0].status;
-                        if (req.body.status == 0 && req.user.rank <= minTagLevel) {
+                        if (req.body.status == 1 && req.user.rank >= minTagLevel) {
                             res.json({success:false, reason: 'You do not have sufficient permissions to approve the indicated announcement\'s tags.'});
                             res.end();
                         }
