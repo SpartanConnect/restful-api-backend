@@ -105,16 +105,22 @@ function announcementSubmitHandler (req, res) {
                     //The user has a rank sufficient to edit announcements.
                     var announcementInfo = dbUtility.query('SELECT creatorId, status FROM announcements WHERE id = :id', {id:req.params.id});
                     var creatorInfo = dbUtility.query('SELECT rank FROM users WHERE id=(SELECT creatorId FROM announcements WHERE id = :id)', {id: req.params.id});
-                    //var tagInfo = dbUtility.query('SELECT minUserLevelAssign FROM tags WHERE id IN (SELECT tagId FROM announcements_tags WHERE announcementId = :id)', {id:req.params.id});
-                    Promise.all([announcementInfo, creatorInfo /*,  tagInfo */]).then ((announcementCreatorTagInfo) => {
+                    var tagInfo = dbUtility.query('SELECT minUserLevelAssign FROM tags WHERE id IN (SELECT tagId FROM announcements_tags WHERE announcementId = :id)', {id:req.params.id});
+                    Promise.all([announcementInfo, creatorInfo,  tagInfo]).then ((announcementCreatorTagInfo) => {
                         let announcementInfo = announcementCreatorTagInfo[0];
                         let creatorInfo = announcementCreatorTagInfo[1];
-/*                         let tagInfo = announcementCreatorTagInfo[2];
-
+                        let tagInfo = announcementCreatorTagInfo[2];
                         console.log(tagInfo);
- */
+                        var minTagLevel = 3;
+                        
+                        tagInfo.array.forEach((tag) {
+                            if (tag.minUserLevelAssign<minTagLevel) {
+                                minTagLevel = tag.minUserLevelAssign;
+                            }
+                        });
+
                         let endStatus = req.body.status ? req.body.status : announcementInfo[0].status;
-                        if ((req.user.id == announcementInfo[0].creatorId && (endStatus == 0 || endStatus == 3 || announcementInfo[0].status == 2)) || //User is creator and wants to edit own announcement and wants to set to pending or remove it
+                        if ((req.user.id == announcementInfo[0].creatorId && (endStatus == 0 || endStatus == 3 || announcementInfo[0].status == 2) && req.body.status != 2) || //User is creator and wants to edit own announcement and wants to set to pending or remove it
                             (req.user.rank <= 2 && req.user.rank <= creatorInfo[0].rank)) { //User is an admin and is trying to edit or approve an announcement created by someone of equal or lower rank.
                             if (typeof req.body.tags !== 'undefined') {
                                 //Tags should be updated
