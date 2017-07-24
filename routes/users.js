@@ -88,7 +88,7 @@ function userSubmitHandler(req, res) {
             dbUtilities.query('SELECT rank FROM users WHERE id = :id', {id:req.params.id}).then((targetRank) => {
                 //console.log(targetRank[0].rank);
                 //console.log(req.user.rank);
-                if (req.params.id==req.user.id && typeof req.body.rank !== 'undefined') {
+                if ((req.params.id==req.user.id && typeof req.body.rank !== 'undefined')) {
                     res.json({success:false, reason:'You may not modify your own rank.'});
                     res.end();
                 }

@@ -110,7 +110,7 @@ exports.createAnnouncement = (title, description, creatorId, startDate, endDate,
         /* eslint-enable indent */
         database.query('INSERT INTO announcements (title, description, creatorId, startDate, endDate, status) VALUES (:title, :description, :creatorId, :startDate, :endDate, 0)', statementParameters).then((announcementCreateResult) => {
             if (typeof tags !== 'undefined') {
-                console.log('tags should be declared');
+                //console.log('tags should be declared');
                 exports.createTags(announcementCreateResult.insertId, tags).then((tagCreationResult) => {
                     resolve({'announcementCreate':announcementCreateResult, 'tagCreate':tagCreationResult});
                 });
