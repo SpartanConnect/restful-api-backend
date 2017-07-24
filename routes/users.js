@@ -4,6 +4,8 @@ var router = express.Router();
 var userUtilities = require('../utilities/users');
 var announcementRoutes = require('./announcements');
 var notificationRoutes = require('./notifications');
+var authUtilities = require('./../utilities/auth'); //eslint-disable-line spellcheck/spell-checker
+var dbUtilities = require('./../utilities/database');
 
 function userRequestHandler (req, res) {
     /* eslint-disable indent */
@@ -28,27 +30,44 @@ function userSubmitHandler(req, res) {
     //console.log('Hit submit utility handler');
     //console.log(parseInt(req.params.id));
     if (typeof req.params.id === 'undefined') {
-        if (typeof req.body.name !== 'undefined' &&
-            typeof req.body.handle !== 'undefined' &&
-            typeof req.body.email !== 'undefined') {
-            //console.log('Create user conditions met');
-            userUtilities.createUser(req.body.name, req.body.handle, req.body.email).then ((result) => {
-                //console.log('create user completed');
-                if (result.affectedRows == 0) {
-                    res.json({success: false,
-                        reason:'Could not add rows and create user.'});
-                } else {
-                    res.json({success:true});
-                }
+        //console.log('User wants to create user');
+        //console.log(req.user);
+        if (req.user.rank <= 2 && typeof req.user.rank !== 'undefined') {
+            //console.log('user has rank <=2 ');
+            //User has sufficient privliedges to create a user (admin or higher ATM)
+            if (typeof req.body.name !== 'undefined' &&
+                /* typeof req.body.handle !== 'undefined' && */
+                typeof req.body.email !== 'undefined') {
+                //There is the necessary information to create the announcement
+                //console.log('Create user conditions met');
+                userUtilities.createUser(req.body.name, req.body.email).then ((result) => {
+                    //console.log('create user completed');
+                    if (result.affectedRows == 0) {
+                        res.json({success: false,
+                            reason:'Could not add rows and create user.'});
+                    } else {
+                        res.json({success:true});
+                    }
+                    res.end();
+                }).catch((error) => {
+                    if (error.code == 'ER_DUP_ENTRY') {
+                        res.json({success:false, reason:'A user with the same email already exists.'});
+                        res.end();
+                    }
+                });
+            }
+            else {
+                res.json({success:false, reason:'Insufficient data to create user.'});
                 res.end();
-            });
+            }
         }
         else {
-            res.json({success:false, reason:'Insufficient data to create user.'});
+            res.json({success:false, reason:'You do not have sufficient privileges to create a user.'});
             res.end();
         }
     }
     else if (isNaN(parseInt(req.params.id))) {
+        //The user ID is provided byt is invalid (not a number)
         res.json({
             success:false,
             reason: 'Invalid userId specified to modify.'
@@ -56,26 +75,45 @@ function userSubmitHandler(req, res) {
         res.end();
     }
     else{
+        //The user wants to update announcement
         if (typeof req.body.name === 'undefined' && typeof req.body.handle === 'undefined' && typeof req.body.rank === 'undefined') {
+            //No updates have been specified.
             res.json({success:false, reason:'No edits have been made.'});
             res.end();
         }
         else {
+            //console.log('Data has been provided to update and the user wants to update a user');
+            //Data has been provided to update
             /* eslint-disable indent */
-            userUtilities.updateUser(req.params.id,
-                                    req.body.name,
-                                    req.body.handle,
-                                    /*req.body.email,*/
-                                    req.body.rank
-            /* eslint-enable indent */
-            ).then ((result) => {
-                if (result.affectedRows == 0) {
-                    res.json({success: false,
-                        reason:'Could not update rows.'});
-                } else {
-                    res.json({success:true});
+            dbUtilities.query('SELECT rank FROM users WHERE id = :id', {id:req.params.id}).then((targetRank) => {
+                //console.log(targetRank[0].rank);
+                //console.log(req.user.rank);
+                if ((req.params.id==req.user.id && typeof req.body.rank !== 'undefined')) {
+                    res.json({success:false, reason:'You may not modify your own rank.'});
+                    res.end();
                 }
-                res.end();
+                else if (targetRank[0].rank>req.user.rank || req.user.rank === 0) {
+                    //User has sufficient privlieges to edit user.
+                    userUtilities.updateUser(req.params.id,
+                                            req.body.name,
+                                            req.body.handle,
+                                            /*req.body.email,*/
+                                            req.body.rank
+                    /* eslint-enable indent */
+                    ).then ((result) => {
+                        if (result.affectedRows == 0) {
+                            res.json({success: false,
+                                reason:'No rows have been updated.'});
+                        } else {
+                            res.json({success:true});
+                        }
+                        res.end();
+                    });
+                }
+                else {
+                    res.json({success:false, reason:'You do not have sufficient privileges to edit the user that has been specified.'});
+                    res.end();
+                }
             });
         }
     }
@@ -85,11 +123,11 @@ router.get('/users/:creatorId/announcements', announcementRoutes.announcementReq
 
 router.get('/users/:userId/notifications', notificationRoutes.notificationRequestHandler);
 
-router.post('/users/:id', userSubmitHandler);
+router.post('/users/:id', authUtilities.verifyAuthenticated(), userSubmitHandler);
 
 router.get('/users/:id', userRequestHandler);
 
-router.post('/users/', userSubmitHandler);
+router.post('/users/', authUtilities.verifyAuthenticated (), userSubmitHandler);
 
 router.get('/users/', userRequestHandler);
 

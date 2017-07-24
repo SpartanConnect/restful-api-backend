@@ -1,17 +1,25 @@
 {
+
+    "plugins": [
+        "spellcheck"
+    ],
+
     "env": {
         "es6": true,
         "node": true
     },
     "extends": "eslint:recommended",
     "rules": {
+        "spellcheck/spell-checker": [1, {
+            "comments":true,
+            "strings":true,
+            "identifiers":false,
+            "lang":"en_US"
+        }],
+
         "indent": [
             "warn",
             4
-        ],
-        "linebreak-style": [
-            "warn",
-            "windows"
         ],
         "quotes": [
             "warn",
@@ -26,6 +34,9 @@
             {"properties": "always"}
         ],
         "no-console": [
+            "off"
+        ],
+        "linebreak-style":[
             "off"
         ]
     }

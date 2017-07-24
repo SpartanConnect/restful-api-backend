@@ -21,6 +21,7 @@
     "mysql": "^2.13.0"
   },
   "devDependencies": {
-    "eslint": "^4.2.0"
+    "eslint": "^4.2.0",
+    "eslint-plugin-spellcheck": "0.0.8"
   }
 }
