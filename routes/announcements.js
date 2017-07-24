@@ -113,14 +113,18 @@ function announcementSubmitHandler (req, res) {
                         console.log(tagInfo);
                         var minTagLevel = 3;
                         
-                        tagInfo.array.forEach((tag) => {
+                        tagInfo.forEach((tag) => {
                             if (tag.minUserLevelAssign<minTagLevel) {
                                 minTagLevel = tag.minUserLevelAssign;
                             }
                         });
 
                         let endStatus = req.body.status ? req.body.status : announcementInfo[0].status;
-                        if ((req.user.id == announcementInfo[0].creatorId && (endStatus == 0 || endStatus == 3 || announcementInfo[0].status == 2) && req.body.status != 2) || //User is creator and wants to edit own announcement and wants to set to pending or remove it
+                        if (req.body.status == 0 && req.user.rank <= minTagLevel) {
+                            res.json({success:false, reason: 'You do not have sufficient permissions to approve the indicated announcement\'s tags.'});
+                            res.end();
+                        }
+                        else if ((req.user.id == announcementInfo[0].creatorId && (endStatus == 0 || endStatus == 3 || announcementInfo[0].status == 2) && req.body.status != 2) || //User is creator and wants to edit own announcement and wants to set to pending or remove it
                             (req.user.rank <= 2 && req.user.rank <= creatorInfo[0].rank)) { //User is an admin and is trying to edit or approve an announcement created by someone of equal or lower rank.
                             if (typeof req.body.tags !== 'undefined') {
                                 //Tags should be updated
@@ -200,9 +204,8 @@ router.get('/announcements/', announcementRequestHandler);
 router.post('/announcements/', authUtilities.verifyAuthenticated(), announcementSubmitHandler);
 
 router.get('/announcements/current', function (req, res) {
-    //console.log(new Date());
-    req.query.startDate = new Date()/*.setHours(0, 0, 0, 0)*/;
-    req.query.endDate = new Date()/*.setHours(0, 0 ,0 ,0)*/;
+    req.query.startDate = new Date();
+    req.query.endDate = new Date();
     req.query.status = 1;
     announcementRequestHandler(req, res);
 });
