@@ -113,7 +113,7 @@ function announcementSubmitHandler (req, res) {
                         console.log(tagInfo);
                         var minTagLevel = 3;
                         
-                        tagInfo.array.forEach((tag) {
+                        tagInfo.array.forEach((tag) => {
                             if (tag.minUserLevelAssign<minTagLevel) {
                                 minTagLevel = tag.minUserLevelAssign;
                             }
