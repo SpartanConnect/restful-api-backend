@@ -101,7 +101,7 @@ function announcementSubmitHandler (req, res) {
             else {
                 //Valid announcement ID to edit
                 if (req.user.rank <=3) {
-                    console.log('the user\'s rank is sufficient to edit announcements');
+                    //console.log('the user\'s rank is sufficient to edit announcements');
                     //The user has a rank sufficient to edit announcements.
                     var announcementInfo = dbUtility.query('SELECT creatorId, status FROM announcements WHERE id = :id', {id:req.params.id});
                     var creatorInfo = dbUtility.query('SELECT rank FROM users WHERE id=(SELECT creatorId FROM announcements WHERE id = :id)', {id: req.params.id});
@@ -110,7 +110,7 @@ function announcementSubmitHandler (req, res) {
                         let announcementInfo = announcementCreatorTagInfo[0];
                         let creatorInfo = announcementCreatorTagInfo[1];
                         let tagInfo = announcementCreatorTagInfo[2];
-                        console.log(tagInfo);
+                        //console.log(tagInfo);
                         var minTagLevel = 3;
                         
                         tagInfo.forEach((tag) => {
