@@ -134,7 +134,7 @@ function announcementSubmitHandler (req, res) {
                                     announcementUpdateResult.tagCreateResult = updateTagResults.createResult;
                                     if (announcementUpdateResult.tagDeleteResult.affectedRows == 0) {
                                         //The tags haven't been deleted. Throw error
-                                        res.json({'success':false,'reason':'The tags that were connected to the announcement were not deleted.'});
+                                        res.json({'success':false,'reason':'The tags that were assigned to the announcement were not deleted.'});
                                         res.end();
                                     }
                                     else if (announcementUpdateResult.tagCreateResult.affectedRows == 0) {
@@ -190,7 +190,7 @@ function announcementSubmitHandler (req, res) {
                     });
                 }
                 else {
-                    console.log('The user does not have sufficient privileges');
+                    //console.log('The user does not have sufficient privileges');
                     res.json({success:false, reason:'You do not have sufficient privileges to edit announcements.'});
                     res.end();
                 }
