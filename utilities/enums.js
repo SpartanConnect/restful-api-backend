@@ -89,10 +89,13 @@ exports.errors = {
 };
 
 exports.status = {
-    PENDING: 0,
-    APPROVED: 1,
-    REJECTED: 2,
-    REMOVED: 3
+    PENDING_ADMIN: 0,
+    APPROVED_ADMIN: 1,
+    REJECTED_ADMIN: 2,
+    REMOVED_TEACHER: 3,
+    APPROVED_TEACHER: 4,
+    REJECTED_TEACHER: 5,
+    REMOVED_STUDENT: 6
 };
 
 module.exports = exports;
