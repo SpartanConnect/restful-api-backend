@@ -47,7 +47,8 @@ exports.errors = {
     AUTH_IRREVOCABLE_LOGOUT: 110,
     AUTH_SUCCESS_LOGOUT: 200,
     
-    
+    /* The submission of the announcement was successful
+    This is for use when the user wants to create an announcement and all parts of its creation proceed (i.e. announcement creation, tag application) correctly. */    
     ANNOUNCEMENT_CREATE_SUCCESS: 1000,
     ANNOUNCEMENT_CREATE_FAILURE: 1001,
     ANNOUNCEMENT_CREATE_INCOMPLETE: 1002, // Do we add a body to ensure that it isn't confused with incomplete connections?
