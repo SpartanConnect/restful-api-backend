@@ -33,6 +33,11 @@ exports.users = {
     return code;
 } */
 
+/**
+ * This is the enum which has all of the error codes in it.
+ * @readonly
+ * @enum {number}
+ */
 exports.errors = {
     AUTH_SUCCESS_LOGIN: 100,
     AUTH_NOT_LOGGED_IN: 101,
@@ -49,6 +54,9 @@ exports.errors = {
     
     /* The submission of the announcement was successful
     This is for use when the user wants to create an announcement and all parts of its creation proceed (i.e. announcement creation, tag application) correctly. */    
+    /**
+     * Pass this response when the creation of an announcement with its tags was successful.
+     */
     ANNOUNCEMENT_CREATE_SUCCESS: 1000,
     ANNOUNCEMENT_CREATE_FAILURE: 1001,
     ANNOUNCEMENT_CREATE_INCOMPLETE: 1002, // Do we add a body to ensure that it isn't confused with incomplete connections?
