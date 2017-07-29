@@ -148,19 +148,22 @@ exports.createTags = (id, tags) => {
 exports.updateTags = (id, tags) => {
     return new Promise ((resolve) => {
         database.query('DELETE FROM announcements_tags WHERE announcementId = :announcementId', {'announcementId':id}).then((deleteResult) => {
-            let tagCreateQueryStatement = 'INSERT INTO announcements_tags (announcementId, tagId) VALUES ';
-            let tagCreateQueryStatementParameters = {};
-            
-            tags.forEach((tagObject, index) => {
-                if (index !== 0) {
-                    tagCreateQueryStatement += ' , ';
-                }
-                tagCreateQueryStatement += '(:id, '+':tagId'+index+')';
-                tagCreateQueryStatementParameters[':tagId'+index] = tagObject.id;
-            });
-            database.query(tagCreateQueryStatement, tagCreateQueryStatementParameters).then((createResult) => {
-                resolve ({'deleteResult':deleteResult, 'createResult':createResult});
-            });
+            if (tags.length != 0) {
+                let tagCreateQueryStatement = 'INSERT INTO announcements_tags (announcementId, tagId) VALUES ';
+                let tagCreateQueryStatementParameters = {};
+                
+                tags.forEach((tagObject, index) => {
+                    if (index !== 0) {
+                        tagCreateQueryStatement += ' , ';
+                    }
+                    tagCreateQueryStatement += '(:id, '+':tagId'+index+')';
+                    tagCreateQueryStatementParameters['tagId'+index] = tagObject.id;
+                });
+                tagCreateQueryStatementParameters.id = id;
+                database.query(tagCreateQueryStatement, tagCreateQueryStatementParameters).then((createResult) => {
+                    resolve ({'deleteResult':deleteResult, 'createResult':createResult});
+                });
+            }
         });
     });
 };
