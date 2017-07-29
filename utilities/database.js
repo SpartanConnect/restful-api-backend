@@ -1,4 +1,4 @@
-var databaseConnection = require('./../database-development.js');
+var databaseConnection = require('./../database-development.js'); //eslint-disable-line spellcheck/spell-checker
 
 databaseConnection.config.queryFormat = function (query, values) {
     if (!values) return query;

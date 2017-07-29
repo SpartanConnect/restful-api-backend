@@ -1,11 +1,19 @@
 var express = require('express');
 var router = express.Router();
+var _ = require('underscore');
 
 var announcements = require('../utilities/announcements');
 var authUtilities = require('./../utilities/auth'); //eslint-disable-line spellcheck/spell-checker
 var notificationRoutes = require('./notifications');
 var eventRoutes = require('./events');
 var dbUtility = require('./../utilities/database');
+var errorSend = require('../utilities/errors').send;
+var enums = require('../utilities/enums'); //eslint-disable-line spellcheck/spell-checker
+
+var errorEnum = enums.errors;
+var rankEnum = enums.users;
+var statusEnun = enums.status;
+
 
 function announcementRequestHandler (req, res) {
     /*eslint-disable indent */
@@ -29,6 +37,64 @@ function announcementRequestHandler (req, res) {
     }).catch(error => {
         console.log(error);
     });
+}
+
+/**
+ * This function takes in parameters and is used for documenting and comparing announcements.
+ * @param {boolean} isAdmin 
+ * @param {boolean} isCreator 
+ * @param {boolean} updateContent 
+ * @param {boolean} updateTags 
+ * @param {boolean} updateStatus 
+ * @param {number} finalStatus 
+ * @param {boolean} sufficientRank 
+ * @returns {Object} An object that has information about the request and its parameters.
+ */
+function caseObjectGenerator(isAdmin, isCreator, updateContent, updateTags, updateStatus, finalStatus,  sufficientRank) {
+    return {isAdmin: isAdmin, isCreator: isCreator, updateContent: updateContent, updateTags: updateTags, finalStatus: finalStatus, sufficientRank: sufficientRank};
+}
+
+/**
+ * 
+ * @param {Object} req The request object from the HTTP(S) route.
+ * @param {Object} res The response object from the HTTP(S) route. 
+ */
+function announcementSubmitHandler2 (req, res) {
+    if (typeof req.paramas.id !== 'undefined') {
+        //The user wants to edit an announcement. Fantastic. 😒
+        
+        //Define varaibles for request catergorazation.
+        var isAdmin, isCreator, updateContent, updateTags, updateStatus, finalStatus, sufficientRank;
+        
+        // Determine whether or not the user is an admin.
+        if (req.user.rank <= rankEnum.RANK_ADMIN)
+            isAdmin = true;
+        else
+            isAdmin = false;
+
+        // Determine whether or not the user is requesting to change the content of the announcement.
+        // This needs to be checked 
+        if (typeof req.body.title != 'undefined' ||
+            typeof req.body.description != 'undefined' || 
+            typeof req.body.startDate != 'undefined' ||
+            typeof req.body.endDate != 'undefined')
+            updateContent = true;
+        else
+            updateContent = false;
+
+        // Determine whether or not the user is requesting to change the tags on the announcement.
+        // This needs to be checked later to determine whether or not the tag list actually changed.
+        if (typeof req.body.tags[0] != 'undefined')
+            if (req.body.tags[0].id != 'undefined')
+                updateTags = true;
+            else
+                updateTags = false;
+        else
+            updateTags = false;
+
+        // Is the status being sent? This needs to be checked later to see if the status is actually changed from the old one.
+        if (typeof req.body.status != 'undefined')
+    }
 }
 
 function announcementSubmitHandler (req, res) {

@@ -117,7 +117,7 @@ exports.loginUser = function(gid, email, profileUrl, callback) {
 
 // Verification middleware -- takes in a role parameter
 exports.verifyAuthenticated = function () {
-    console.log('hit verify auth');
+    //console.log('hit verify auth');
     return function (req, res, next) {
         if (req.session.access_token) {
             authClient.setCredentials({
