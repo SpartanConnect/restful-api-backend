@@ -145,6 +145,40 @@ exports.createTags = (id, tags) => {
     return database.query(tagCreateQueryStatement+'ON DUPLICATE KEY UPDATE tagId=tagId ;', tagCreateQueryStatementParameters);
 };
 
+/**
+ * A function that takes in an array of tagId's and deletes them from the announcement indicated by the `announcementId` parameter.
+ * @param {number} announcementId The number of announcement from which to delete the tags.
+ * @param {number[]} tagIdArray An array of tagIds which indicate which tags to delete.
+ * 
+ * @returns {Promise} A result object from the SQL server. Use this to determine the success of the statement.
+ */
+exports.deleteTags = (announcementId, tagIdArray) => {
+    /**
+     * The SQL statement that is sent to the server. Upon initialization, it's only the start of the query, it needs to be filled in.
+     * @var {string} statement
+     */
+    let statement = 'DELETE FROM announcements_tags WHERE (announcementId, tagId) IN (';
+    
+    /**
+     * Theses are the values that should be substituted into the query when its sent to DB.
+     * @var {Object} parameters
+     */
+    let parameters = {announcementId: announcementId};
+
+    //Loop through the tagId's from the input and add the necessary announcement- and tag-Id pairs to the db. Solution found here: https://stackoverflow.com/a/14904327
+    tagIdArray.forEach((tagId, i) => {
+        if (i != 0) // Ensure commas are added only before the pairs after the first. Desired output (x,y) , (x,y) , (x,y)
+            statement += ' , ';
+        statement += '( :announcementId , :tagId' + i + ' )';
+        parameters['tagId' + i] = tagId;
+    });
+    // Remember to properly close the SQL statement, otherwise, it will error.
+    statement += ');';
+    if (tagIdArray.length != 0) //Make sure we aren't passing an incomplete SQL statement.
+        return database.query(statement, parameters);
+    return;
+};
+
 exports.updateTags = (id, tags) => {
     return new Promise ((resolve) => {
         database.query('DELETE FROM announcements_tags WHERE announcementId = :announcementId', {'announcementId':id}).then((deleteResult) => {

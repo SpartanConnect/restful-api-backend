@@ -39,6 +39,7 @@
         ],
         "linebreak-style":[
             "off"
-        ]
+        ],
+        "no-unused-vars":"off"
     }
 }

@@ -15,11 +15,11 @@ function responseBuilder(success, id, name, description) {
 }
 
 /**
- * This function takes in a result name and an response object, packages them, and sends them to the client.
- * @param {String} name The name of the error
- * @param {Object} res
+ * This function takes in a result id and an response object, packages them, and sends them to the client.
+ * @param {String} id The id of the error. Derive this from the error enum. Do not directly type in a value.
+ * @param {Object} res The response object passed from the router.
  */
-exports.send = function (name, res) {
+exports.send = function (id, res) {
     /**
      * Append this string to error in which users are trying to perform an action, but don't have sufficient privileges.
      * @var adminPerms {String}
@@ -32,7 +32,7 @@ exports.send = function (name, res) {
      * @var  {String} adminError
      */
     let adminError = ' Please contact an administrator regarding this error.';
-    switch (name) {
+    switch (id) {
         // Announcement creation errors. Block  100X
         case errors.ANNOUNCEMENT_CREATE_SUCCESS:
             res.json(responseBuilder(true, errors.ANNOUNCEMENT_CREATE_SUCCESS, 'ANNOUNCEMENT_CREATE_SUCCESS', 'The announcement that was submitted was successfully created.'));

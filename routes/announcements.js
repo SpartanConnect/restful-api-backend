@@ -15,7 +15,7 @@ var rankEnum = enums.users;
 var statusEnun = enums.status;
 
 
-function announcementRequestHandler (req, res) {
+function announcementRequestHandler (req, res) {    
     /*eslint-disable indent */
     announcements.getAnnouncements((req.query.id ? req.query.id : req.params.id),
                                     req.query.status,
@@ -41,13 +41,13 @@ function announcementRequestHandler (req, res) {
 
 /**
  * This function takes in parameters and is used for documenting and comparing announcements.
- * @param {boolean} isAdmin 
- * @param {boolean} isCreator 
- * @param {boolean} updateContent 
- * @param {boolean} updateTags 
- * @param {boolean} updateStatus 
+ * @param {Boolean} isAdmin 
+ * @param {Boolean} isCreator 
+ * @param {Boolean} updateContent 
+ * @param {Boolean} updateTags 
+ * @param {Boolean} updateStatus 
  * @param {number} finalStatus 
- * @param {boolean} sufficientRank 
+ * @param {Boolean} sufficientRank A boolean value which determines whether or not the user has a lower rank number (more privileges) than the creator of the announcement.
  * @returns {Object} An object that has information about the request and its parameters.
  */
 function caseObjectGenerator(isAdmin, isCreator, updateContent, updateTags, updateStatus, finalStatus,  sufficientRank) {
@@ -60,11 +60,53 @@ function caseObjectGenerator(isAdmin, isCreator, updateContent, updateTags, upda
  * @param {Object} res The response object from the HTTP(S) route. 
  */
 function announcementSubmitHandler2 (req, res) {
-    if (typeof req.paramas.id !== 'undefined') {
+    if (typeof req.params.id !== 'undefined') {
         //The user wants to edit an announcement. Fantastic. 😒
         
         //Define varaibles for request catergorazation.
-        var isAdmin, isCreator, updateContent, updateTags, updateStatus, finalStatus, sufficientRank;
+        
+        /**
+         * A boolean variable which represents whether the user that is attempting the action is an admin or not.
+         * @var {Boolean}
+         */
+        var isAdmin;
+
+        /**
+         * A boolean variable which represents whether the user is the creator of the specified announcement.
+         * @var {Boolean}
+         */
+        var isCreator;
+
+        /**
+         * A boolean which indicates whether or not title, description, startDate, or endDate data has been submitted. **The new content should be checked to ensure that it has actually been changed.**
+         * @var {Boolean}
+         */
+        var updateContent;
+
+        /**
+         * A boolean which indicated if tags have been supplied to update. This value should not be assumed to be an update of the tags. **The tags should be checked to ensure that they have actually changed.**
+         * @var {Boolean}
+         */
+        var updateTags;
+
+        /**
+         * A boolean which indicates if the status of the announcement is included in the submitted announcement object. **Similar to `updateContent` and `updateTags`, it should be checked to ensure a change has in fact been made before sending a query.**
+         * @var {Boolean}
+         */
+        var updateStatus;
+
+        /**
+         * An integer representing the final rank that an announcement would be after the specified edits.
+         * This is used when determining whether someone is approving, denying, removing, or submitting an announcement.
+         * @var {Boolean}
+         */
+        var finalStatus;
+
+        /**
+         * A boolean value which determines whether or not the user has a lower or equal rank number (more or the same privileges) than the creator of the announcement. This value is often used in conjunction with the isAdmin variable to determine whether or not an admin can edit another admin's announcement.
+         * @var {Boolean}
+         */
+        var sufficientRank;
         
         // Determine whether or not the user is an admin.
         if (req.user.rank <= rankEnum.RANK_ADMIN)
@@ -84,16 +126,185 @@ function announcementSubmitHandler2 (req, res) {
 
         // Determine whether or not the user is requesting to change the tags on the announcement.
         // This needs to be checked later to determine whether or not the tag list actually changed.
-        if (typeof req.body.tags[0] != 'undefined')
-            if (req.body.tags[0].id != 'undefined')
-                updateTags = true;
+        // TODO: This also needs to iterate through the tags to ensure that all tags that are attempting to be applied have IDs.
+        if (typeof req.body.tags != 'undefined') { //We know that there is a tags object.
+            if (req.body.tags.length > 0) { //Making sure that the tag objet has objects in it (its length is >0)
+                req.body.tags.forEach((tagObject) => {
+                    if (typeof tagObject.id == 'undefined') // If the if for any tag object is undefined, throw an error.
+                        errorSend(errorEnum.TAG_APPLY_INVALID, res); // Throw TAG_APPLY_INVALID error. Not sure if this is the rignt one, however.
+                });
+            }
             else
-                updateTags = false;
-        else
+                updateTags = false; // The tag object is present but there are no elements in it.
+        }
+        else // The tag object isn't present.
             updateTags = false;
 
         // Is the status being sent? This needs to be checked later to see if the status is actually changed from the old one.
         if (typeof req.body.status != 'undefined')
+            updateStatus = true;
+        else
+            updateStatus = false;
+
+        //If no body content, tag data, nor status is being sent, there is nothing to update and we should thrown an error.
+        if (updateContent == false && updateTags == false, updateStatus == false) {
+            errorSend(errorEnum.ANNOUNCEMENT_UPDATE_EMPTY, res);
+            return;
+        }
+        
+        // Now that we know that there is some data to update, we need more info about what is currently in the DB to determine whether or not to actually do anything.
+        // Now we query the database to get more information on the creator, content and tags.
+        announcements.getAnnouncementById(req.params.id).then((announcementInfo) => {
+            // TODO: We need to ensure that there is announcement info that is returned. If none is returned, we need to throw an error.
+
+            /**
+             * A variable (hopefully) containing information about the announcement that is wanted to be edited.
+             * This is basically just the first index of the `announcementInfo` variable that is output by the `getAnnouncementById` function.
+             * @var {Object}
+             * @prop {String} announcementObject.title The title of the announcement frin  the database.
+             * @prop {String} announcementObject.description The description of the announcement from the database.
+             * @prop {Date} announcementObject.startDate The startDate of the announcement from the databsae.
+             * @prop {Date} announcementObject.endDate The end date of the announcement from the database.
+             * @prop {number} announcementObject.status The status of the announcement from the database. Should be one of the values fron enums.status
+             * @prop {Date} announcementObject.timeSubmitted The date and time that the announcement was first submitted.
+             * @prop {Date} announcementObject.timeApproved An optional date and time at which the announcement was approved. If the announcement is not approved, it should be null.
+             * @prop {Date} announcementObject.timeEdited The date and time at which the announcement was last edited.
+             * @prop {Object} announcementObject.creator The standard user object that contains information about the creator of the announcement.
+             * @prop {Object} announcementObject.admin An optional standard user object that contains information about the last admin to affect an announcement. For annnouncements which admins have not taken action upon, this is not present.
+             * @prop {Object[]} announcementObject.tags An optional arrray of standard tag objects that contain the tags that an announcement has.
+             * @prop {Object[]} announcementObject.events An optional array of standard event objects that contain the event(s) which is/are the child(ren) of the announcement.
+             * @readonly 
+             */
+            var announcementObject = announcementInfo[0];
+            //Remeber that getAnnouncementById returns an array of announcement objects.
+
+            // Determine whether or not the user is the creator of the announcement.
+            if (announcementObject.creatorID == req.user.id)
+                isCreator = true;
+            else
+                isCreator = false;
+
+            // Determine the final status of the announcement after the submitted changes.
+            if (updateStatus) // If the status has been submitted, then the final status after applying the submitted changes would be read from the request object.
+                finalStatus = req.body.status;
+            else //If the status has not been submitted, then it would remain the same as it was at first.
+                finalStatus = announcementObject.status;
+
+            //We need to compare the creator and editor's ranks to determine if the editopr's rank is sufficient to edit the announcement, in certain cases.
+            if (req.user.rank <= announcementObject.user.rank)
+                sufficientRank = true;
+            else
+                sufficientRank = false;
+
+            //Declare boring variables to use for determining updates to content.
+            /**
+             * A temporary boolean variable indicating whether or not the title has actually changed. Initialized to false.
+             * @var {Boolean} updateTitle
+             */
+            var updateTitle = false;
+
+            /**
+             * A temporary boolean variable indicating whether or not the description has actually changed. Initialized to false.
+             * @var {Boolean} updateDescription
+             */
+            var updateDescription = false;
+
+            /**
+             * A temporary boolean variable indicating whether or not the startDate has actually changed. Initialized to false.
+             * @var {Boolean} updateStartDate
+             */
+            var updateStartDate = false;
+
+            /**
+             * A temporary boolean variable indicating whether or not the endDate has actually changed. Initialized to false.
+             * @var {Boolean} updateEndDate
+             */
+            var updateEndDate = false;
+
+            //Now that we have the starting values for these parameters, we need to make sure that we only are trying to update the values that have actually changed. 
+            if (updateContent) {
+                if (typeof req.body.title != 'undefined' && req.body.title != announcementObject.title) //Is the title of the submitted data is defined, we should compare it to the current value.
+                    updateTitle = true;
+                if (typeof req.body.description != 'undefined' && req.body.description != announcementObject.description) //Testing for the description actually changing.
+                    updateDescription = true;
+                if (typeof req.body.startDate != 'undefined' && req.body.startDate != announcementObject.startDate) // Testing for the start date changing
+                    updateStartDate = true;
+                if (typeof req.body.endDate != 'undefined' && req.body.endDate != announcementObject.endDate) // Testing for the end date changing.
+                    updateEndDate = true;
+            }
+
+            // Update updateContent to ensure that it actually represents wheteher or not the the values were actually changed.
+            updateContent = updateTitle || updateDescription || updateStartDate || updateEndDate;
+
+            // Check if the submitted status is actually different from the one that is already in the database.
+            if (updateStatus)
+                if (req.body.status == announcementObject.status)
+                    updateStatus = false;
+            
+            if (updateTags) {
+                /**
+                 * This variable contains the tagId's which the announcement currently has in the database, prior to any changes.
+                 * @var {Set} currentTags
+                 * @readonly
+                 */
+                var currentTags = new Set();
+                /**
+                 * `deleteTags` is a set of tagId's that should be deleted to complete the query.
+                 * 
+                 * @var {Set} deleteTags
+                 */
+                var deleteTags = new Set();
+                /**
+                 * `applyTags` is a set of tagId's that should be applied the the announcement for the edit to be completed.
+                 * 
+                 * @var {Set} applyTags
+                 */
+                var applyTags = new Set();
+                /**
+                 * `requestTags` is a set of tagId's that the request announcement object contains.
+                 * 
+                 * @var {Set} requestTags
+                 * @readonly
+                 */
+                var requestTags = new Set();
+
+                //Populate the currentTag set with the tagId's from the db query
+                announcementObject.tags.forEach((tagObject) => {
+                    currentTags.add(tagObject.id);
+                });
+
+                //Populate requestTags set with the request's tag objects.
+                req.body.tags.forEach((tagObject) => {
+                    requestTags.add(tagObject.id);
+                });
+
+                // If one of the tags in the request isn't currently in the announcement, add it to be applied.
+                requestTags.forEach((tagId) => {
+                    if (!currentTags.has(tagId))
+                        applyTags.add(tagId);
+                });
+
+                // If one of the tags that is currently applied but isn't in the request, add it to the delete list.
+                currentTags.forEach((tagId) => {
+                    if (!requestTags.has(tagId))
+                        deleteTags.add(tagId);
+                });
+            }
+
+            //Now we need to make sure that the tags have actually changed. Do this by seeing if the apply and delete tag objects have lengths.
+            if (applyTags.size == 0 && deleteTags.size == 0)
+                updateTags = false;
+
+            // Perform a similar check as above to not 'update' the database if nothing has changed.
+            if (updateContent == false && updateTags == false, updateStatus == false) {
+                errorSend(errorEnum.ANNOUNCEMENT_UPDATE_EMPTY, res);
+                return;
+            }
+
+            //Finally, we should be sure that the user has submitted some new data for the database to update. Now we can have fun with the actual permissions cases! 😒
+
+
+        });
     }
 }
 
