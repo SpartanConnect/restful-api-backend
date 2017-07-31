@@ -40,29 +40,6 @@ function announcementRequestHandler (req, res) {
 }
 
 /**
- * @typedef {Object} RequestCase
- * @prop {Boolean} isAdmin - Whether or not the user is an admin
- * @prop {Boolean} isCreator - Whether or not the user is the announcement's creator.
- * @prop {Boolean} updateContent - Whether or not the content is being edited.
- * @prop 
- */
-
-/**
- * This function takes in parameters and is used for documenting and comparing announcements.
- * @param {Boolean} isAdmin 
- * @param {Boolean} isCreator 
- * @param {Boolean} updateContent 
- * @param {Boolean} updateTags 
- * @param {Boolean} updateStatus 
- * @param {number} finalStatus 
- * @param {Boolean} sufficientRank A boolean value which determines whether or not the user has a lower rank number (more privileges) than the creator of the announcement.
- * @returns {RequestCase} An object that has information about the request and its parameters.
- */
-function caseObjectGenerator(isAdmin, isCreator, updateContent, updateTags, updateStatus, finalStatus,  sufficientRank) {
-    return {isAdmin: isAdmin, isCreator: isCreator, updateContent: updateContent, updateTags: updateTags, finalStatus: finalStatus, sufficientRank: sufficientRank};
-}
-
-/**
  * 
  * @param {Object} req The request object from the HTTP(S) route.
  * @param {Object} res The response object from the HTTP(S) route. 
@@ -311,10 +288,12 @@ function announcementSubmitHandler2 (req, res) {
             }
 
             //Finally, we should be sure that the user has submitted some new data for the database to update. Now we can have fun with the actual permissions cases! 😒
-            var permissionsCase = caseObjectGenerator(isAdmin, isCreator, updateContent, updateTags, updateStatus, finalStatus, sufficientRank);
 
             //I'm not sure I want to use a switch... I think it might be useful later, but not for the first level of request filtering.
-            if (permissionsCase.isAdmin)
+            if (isAdmin && isCreator && finalStatus != statusEnum.APPROVED_ADMIN) { // An admin is editing their own announcement, but not approving it. Approving it requires testing their rank against the tag's ranks.
+                next();
+            }
+            else if (isAdmin && !isCreator && sufficientRank && finalStatus != statusEnum.APPROVED_ADMIN && finalStatus != statusEnum.REMOVED_TEACHER, && finalStatus != statusEnum.) // An admin is trying to edit another user's announcement and their rank is higher than the other user's. As always, its not approval.
 
 
             /* switch (permissionsCase) {
