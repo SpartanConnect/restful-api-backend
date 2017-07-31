@@ -12,7 +12,7 @@ var enums = require('../utilities/enums'); //eslint-disable-line spellcheck/spel
 
 var errorEnum = enums.errors;
 var rankEnum = enums.users;
-var statusEnun = enums.status;
+var statusEnum = enums.status;
 
 
 function announcementRequestHandler (req, res) {    
@@ -40,6 +40,14 @@ function announcementRequestHandler (req, res) {
 }
 
 /**
+ * @typedef {Object} RequestCase
+ * @prop {Boolean} isAdmin - Whether or not the user is an admin
+ * @prop {Boolean} isCreator - Whether or not the user is the announcement's creator.
+ * @prop {Boolean} updateContent - Whether or not the content is being edited.
+ * @prop 
+ */
+
+/**
  * This function takes in parameters and is used for documenting and comparing announcements.
  * @param {Boolean} isAdmin 
  * @param {Boolean} isCreator 
@@ -48,7 +56,7 @@ function announcementRequestHandler (req, res) {
  * @param {Boolean} updateStatus 
  * @param {number} finalStatus 
  * @param {Boolean} sufficientRank A boolean value which determines whether or not the user has a lower rank number (more privileges) than the creator of the announcement.
- * @returns {Object} An object that has information about the request and its parameters.
+ * @returns {RequestCase} An object that has information about the request and its parameters.
  */
 function caseObjectGenerator(isAdmin, isCreator, updateContent, updateTags, updateStatus, finalStatus,  sufficientRank) {
     return {isAdmin: isAdmin, isCreator: isCreator, updateContent: updateContent, updateTags: updateTags, finalStatus: finalStatus, sufficientRank: sufficientRank};
@@ -241,6 +249,7 @@ function announcementSubmitHandler2 (req, res) {
                 if (req.body.status == announcementObject.status)
                     updateStatus = false;
             
+            // If updateTags is true, we need to ensure whether or not the tags have changed. However, this kind of divying up is not necessarily needed here (although its useful for the comparison at the bottom.)
             if (updateTags) {
                 /**
                  * This variable contains the tagId's which the announcement currently has in the database, prior to any changes.
@@ -289,11 +298,11 @@ function announcementSubmitHandler2 (req, res) {
                     if (!requestTags.has(tagId))
                         deleteTags.add(tagId);
                 });
-            }
 
-            //Now we need to make sure that the tags have actually changed. Do this by seeing if the apply and delete tag objects have lengths.
-            if (applyTags.size == 0 && deleteTags.size == 0)
-                updateTags = false;
+                //Now we need to make sure that the tags have actually changed. Do this by seeing if the apply and delete tag objects have lengths.
+                if (applyTags.size == 0 && deleteTags.size == 0)
+                    updateTags = false;
+            }
 
             // Perform a similar check as above to not 'update' the database if nothing has changed.
             if (updateContent == false && updateTags == false, updateStatus == false) {
@@ -302,6 +311,28 @@ function announcementSubmitHandler2 (req, res) {
             }
 
             //Finally, we should be sure that the user has submitted some new data for the database to update. Now we can have fun with the actual permissions cases! 😒
+            var permissionsCase = caseObjectGenerator(isAdmin, isCreator, updateContent, updateTags, updateStatus, finalStatus, sufficientRank);
+
+            //I'm not sure I want to use a switch... I think it might be useful later, but not for the first level of request filtering.
+            if (permissionsCase.isAdmin)
+
+
+            /* switch (permissionsCase) {
+                // Cases for admin editing their own announcement.
+                case caseObjectGenerator(true, true, true, true, true, statusEnum.APPROVED_ADMIN, true): // The user is an admin and editing their own announcement. Let them do what they want. (Errors with tag assignment can be handled later.) In this case they are trying to approve their own announcement. 
+                case caseObjectGenerator(true, true, true, true, true, statusEnum.PENDING_ADMIN, true): // User is an admin and editing own announcement, they are trying to resubmit it for reapproval. Not sure why they would, but OK.
+                case caseObjectGenerator(true, true, true, true, true, statusEnum.REMOVED_TEACHER, true): // User is an admin and editing own announcement. They are trying to remove an announcement from circulation.
+                case caseObjectGenerator(true, true, true, true, true, statusEnum.REJECTED_ADMIN, true): // User is an admin and editing own announcenemt. They are trying to reject their own announcement. Not sure why, but OK.
+
+                //Cases for admins editing announcements created by users other than their own.
+                case caseObjectGenerator(true, false, true, true, true, statusEnum.PENDING_ADMIN, true): //User is trying to 
+                case caseObjectGenerator(true, false, true, true, true, statusEnum.APPROVED_ADMIN, true):
+                case caseObjectGenerator():
+
+                default:
+                    errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FAILURE);
+                    return;
+            } */
 
 
         });

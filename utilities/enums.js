@@ -95,7 +95,7 @@ exports.status = {
     PENDING_ADMIN: 0,
     APPROVED_ADMIN: 1,
     REJECTED_ADMIN: 2,
-    REMOVED_TEACHER: 3,
+    REMOVED_TEACHER: 3, // Consider renaming. There should be an option for users removing their own announcements, and one for teachers to remove their students announcements...
     APPROVED_TEACHER: 4,
     REJECTED_TEACHER: 5,
     REMOVED_STUDENT: 6

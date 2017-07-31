@@ -16,7 +16,7 @@ function responseBuilder(success, id, name, description) {
 
 /**
  * This function takes in a result id and an response object, packages them, and sends them to the client.
- * @param {String} id The id of the error. Derive this from the error enum. Do not directly type in a value.
+ * @param {number} id The id of the error. Derive this from the error enum. Do not directly type in a value.
  * @param {Object} res The response object passed from the router.
  */
 exports.send = function (id, res) {
