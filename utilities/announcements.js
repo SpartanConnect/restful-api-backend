@@ -212,6 +212,7 @@ exports.updateAnnouncement = (id, title, description, startDate, endDate, adminI
     if(typeof endDate != 'undefined') { statementParameters.endDate = endDate; }
     if(typeof adminId != 'undefined') { statementParameters.adminId = adminId; }
     if(typeof status != 'undefined') { statementParameters.status = status; }
+    if(typeof status != 'undefined' && status == 1) {statementParameters.timeApproved = new Date();}
 
     if(Object.keys(statementParameters).length != 0) {
         Object.keys(statementParameters).forEach(function(item, index) {
