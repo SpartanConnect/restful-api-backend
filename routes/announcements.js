@@ -336,7 +336,7 @@ function announcementSubmitHandler2 (req, res) {
                 return;
             }
             else {
-                next(); 
+                next(); // We need to define a next. (Basically implement this as middleware.)
             }
 
             /* if (isAdmin && isCreator && finalStatus != statusEnum.APPROVED_ADMIN) { // An admin is editing their own announcement, but not approving it. Approving it requires testing their rank against the tag's ranks.
