@@ -157,6 +157,7 @@ exports.send = function (id, res) {
         //The default catch all that we don't want to get to ever.
         default:
             res.json(responseBuilder(false, errors.OTHER_ERROR, 'OTHER_ERROR', 'The requested action encountered an unexpected error.' + adminError));
+            res.end();
             break;
     }
 };

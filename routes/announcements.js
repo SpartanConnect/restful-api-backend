@@ -57,7 +57,13 @@ function announcementSubmitHandler2 (req, res) {
         var isAdmin;
 
         /**
+         * A variable which holds the user's rank. It is simply an aliaas of `req.user.rank`. Use this with the `rankEnum` to perform rank checks and comparisons.
+         */
+        var userRank = req.user.rank;
+        
+        /**
          * A boolean variable which represents whether the user is the creator of the specified announcement.
+         * It also is `true` if the user is the teacher linked to the announcement.
          * @var {Boolean}
          */
         var isCreator;
@@ -92,7 +98,17 @@ function announcementSubmitHandler2 (req, res) {
          * @var {Boolean}
          */
         var sufficientRank;
-        
+
+        /**
+         * A variable that indicates whether or not the user has the necessary permissions to approve the announcements which they have requested.
+         */
+        var tagApprove;
+
+        /**
+         * A variable that indicates whether or not the user has the necessary permissions to add the announcement which they have requested.
+         */
+        var tagApply;
+
         // Determine whether or not the user is an admin.
         if (req.user.rank <= rankEnum.RANK_ADMIN)
             isAdmin = true;
@@ -290,10 +306,43 @@ function announcementSubmitHandler2 (req, res) {
             //Finally, we should be sure that the user has submitted some new data for the database to update. Now we can have fun with the actual permissions cases! 😒
 
             //I'm not sure I want to use a switch... I think it might be useful later, but not for the first level of request filtering.
-            if (isAdmin && isCreator && finalStatus != statusEnum.APPROVED_ADMIN) { // An admin is editing their own announcement, but not approving it. Approving it requires testing their rank against the tag's ranks.
+
+            //FIrst I'm going to go about rejecting cases which shouldn't go through at all.
+            if (!sufficientRank) { //If the user is of insufficient rank to edit the announcement.
+                errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
+                return;
+            }
+            else if (!tagApprove && finalStatus == statusEnum.APPROVED_ADMIN) { //If the user is trying to approve the announcement and they cannot approve its tags.
+                errorSend(errorEnum.TAG_APPROVE_FORBIDDEN, res);
+                return;
+            }
+            else if (!tagApply) { //If they are trying to apply tags that they shoukdn't be able to. 
+                errorSend(errorEnum.TAG_APPLY_FORBIDDEN, res);
+            }
+            else if(!isAdmin && finalStatus == statusEnum.APPROVED_ADMIN) { //User isn't an admin and they are trying to add the admin approved rank. This also catches if a user other than an admin is trying to edit an announcement while its approved.
+                errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
+                return;
+            }
+            else if (!isAdmin && finalStatus == statusEnum.REJECTED_ADMIN) { // User isn't an admin and they are trying to reject the announcement as an admin,
+                errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEM, res);
+                return;
+            }
+            else if (isAdmin && finalStatus == statusEnum.REMOVED_STUDENT) { // The user is an admin and is trying to say that an announcement has been removed by a student.
+                errorSend (errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
+                return;
+            }
+            else if (!isAdmin && !isCreator) { // User isn't an admin, but they are trying to edit someone else's announcement. Or an announcement created by a student other than their parent.
+                errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
+                return;
+            }
+            else {
+                next(); 
+            }
+
+            /* if (isAdmin && isCreator && finalStatus != statusEnum.APPROVED_ADMIN) { // An admin is editing their own announcement, but not approving it. Approving it requires testing their rank against the tag's ranks.
                 next();
             }
-            else if (isAdmin && !isCreator && sufficientRank && finalStatus != statusEnum.APPROVED_ADMIN && finalStatus != statusEnum.REMOVED_TEACHER, && finalStatus != statusEnum.) // An admin is trying to edit another user's announcement and their rank is higher than the other user's. As always, its not approval.
+            else if (isAdmin && !isCreator && sufficientRank && ()) // An admin is trying to edit another user's announcement and their rank is higher than the other user's. As always, its not approval. */
 
 
             /* switch (permissionsCase) {
