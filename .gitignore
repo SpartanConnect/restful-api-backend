@@ -14,3 +14,4 @@ npm-debug.log
 .DS_Store
 .tern-project
 package-lock.json
+client_secret.json
