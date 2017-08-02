@@ -3,7 +3,8 @@ exports.users = {
     RANK_MAINTENANCE: 1,
     RANK_ADMIN: 2,
     RANK_TEACHER: 3,
-    RANK_UNAPPROVED: 4
+    RANK_UNAPPROVED: 4,
+    RANK_STUDENT: 5
 };
 
 /* function code (superblock, block, type, number) {

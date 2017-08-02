@@ -9,6 +9,7 @@ var eventRoutes = require('./events');
 var dbUtility = require('./../utilities/database');
 var errorSend = require('../utilities/errors').send;
 var enums = require('../utilities/enums'); //eslint-disable-line spellcheck/spell-checker
+var tagUtilities = require('../utilities/tags');
 
 var errorEnum = enums.errors;
 var rankEnum = enums.users;
@@ -99,16 +100,6 @@ function announcementSubmitHandler2 (req, res) {
          */
         var sufficientRank;
 
-        /**
-         * A variable that indicates whether or not the user has the necessary permissions to approve the announcements which they have requested.
-         */
-        var tagApprove;
-
-        /**
-         * A variable that indicates whether or not the user has the necessary permissions to add the announcement which they have requested.
-         */
-        var tagApply;
-
         // Determine whether or not the user is an admin.
         if (req.user.rank <= rankEnum.RANK_ADMIN)
             isAdmin = true;
@@ -178,6 +169,12 @@ function announcementSubmitHandler2 (req, res) {
              */
             var announcementObject = announcementInfo[0];
             //Remeber that getAnnouncementById returns an array of announcement objects.
+
+            /**
+             * A variable containing the status of the announcmenet when it was in the database, prior to any modification.
+             * @readonly
+             */
+            var originalStatus = announcementObject.rank;
 
             // Determine whether or not the user is the creator of the announcement.
             if (announcementObject.creatorID == req.user.id)
@@ -297,70 +294,104 @@ function announcementSubmitHandler2 (req, res) {
                     updateTags = false;
             }
 
+
             // Perform a similar check as above to not 'update' the database if nothing has changed.
             if (updateContent == false && updateTags == false, updateStatus == false) {
                 errorSend(errorEnum.ANNOUNCEMENT_UPDATE_EMPTY, res);
                 return;
             }
 
-            //Finally, we should be sure that the user has submitted some new data for the database to update. Now we can have fun with the actual permissions cases! 😒
+            Promise.all([(updateTags? tagUtilities.getTags() : undefined)]).then((allTagsInfo) => {
 
-            //I'm not sure I want to use a switch... I think it might be useful later, but not for the first level of request filtering.
+                /**
+                 * A variable that indicates whether or not the user has the necessary permissions to approve the announcements which they have requested. Variable is initalized to true to ensure that in cases where tags are not submitted, the edit will be allowed.
+                 */
+                var tagApprove = true;
 
-            //FIrst I'm going to go about rejecting cases which shouldn't go through at all.
-            if (!sufficientRank) { //If the user is of insufficient rank to edit the announcement.
-                errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
-                return;
-            }
-            else if (!tagApprove && finalStatus == statusEnum.APPROVED_ADMIN) { //If the user is trying to approve the announcement and they cannot approve its tags.
-                errorSend(errorEnum.TAG_APPROVE_FORBIDDEN, res);
-                return;
-            }
-            else if (!tagApply) { //If they are trying to apply tags that they shoukdn't be able to. 
-                errorSend(errorEnum.TAG_APPLY_FORBIDDEN, res);
-            }
-            else if(!isAdmin && finalStatus == statusEnum.APPROVED_ADMIN) { //User isn't an admin and they are trying to add the admin approved rank. This also catches if a user other than an admin is trying to edit an announcement while its approved.
-                errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
-                return;
-            }
-            else if (!isAdmin && finalStatus == statusEnum.REJECTED_ADMIN) { // User isn't an admin and they are trying to reject the announcement as an admin,
-                errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEM, res);
-                return;
-            }
-            else if (isAdmin && finalStatus == statusEnum.REMOVED_STUDENT) { // The user is an admin and is trying to say that an announcement has been removed by a student.
-                errorSend (errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
-                return;
-            }
-            else if (!isAdmin && !isCreator) { // User isn't an admin, but they are trying to edit someone else's announcement. Or an announcement created by a student other than their parent.
-                errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
-                return;
-            }
-            else {
-                next(); // We need to define a next. (Basically implement this as middleware.)
-            }
+                /**
+                 * A variable that indicates whether or not the user has the necessary permissions to add the announcement which they have requested.  Variable is initalized to true to ensure that in cases where tags are not submitted, the edit will be allowed.
+                 */
+                var tagApply = true;
 
-            /* if (isAdmin && isCreator && finalStatus != statusEnum.APPROVED_ADMIN) { // An admin is editing their own announcement, but not approving it. Approving it requires testing their rank against the tag's ranks.
-                next();
-            }
-            else if (isAdmin && !isCreator && sufficientRank && ()) // An admin is trying to edit another user's announcement and their rank is higher than the other user's. As always, its not approval. */
+                if allTagsInfo
 
+                //Finally, we should be sure that the user has submitted some new data for the database to update. Now we can have fun with the actual permissions cases! 😒
 
-            /* switch (permissionsCase) {
-                // Cases for admin editing their own announcement.
-                case caseObjectGenerator(true, true, true, true, true, statusEnum.APPROVED_ADMIN, true): // The user is an admin and editing their own announcement. Let them do what they want. (Errors with tag assignment can be handled later.) In this case they are trying to approve their own announcement. 
-                case caseObjectGenerator(true, true, true, true, true, statusEnum.PENDING_ADMIN, true): // User is an admin and editing own announcement, they are trying to resubmit it for reapproval. Not sure why they would, but OK.
-                case caseObjectGenerator(true, true, true, true, true, statusEnum.REMOVED_TEACHER, true): // User is an admin and editing own announcement. They are trying to remove an announcement from circulation.
-                case caseObjectGenerator(true, true, true, true, true, statusEnum.REJECTED_ADMIN, true): // User is an admin and editing own announcenemt. They are trying to reject their own announcement. Not sure why, but OK.
+                //I'm not sure I want to use a switch... I think it might be useful later, but not for the first level of request filtering.
 
-                //Cases for admins editing announcements created by users other than their own.
-                case caseObjectGenerator(true, false, true, true, true, statusEnum.PENDING_ADMIN, true): //User is trying to 
-                case caseObjectGenerator(true, false, true, true, true, statusEnum.APPROVED_ADMIN, true):
-                case caseObjectGenerator():
-
-                default:
-                    errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FAILURE);
+                //FIrst I'm going to go about rejecting cases which shouldn't go through at all.
+                if (!sufficientRank) { //If the user is of insufficient rank to edit the announcement.
+                    errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
                     return;
-            } */
+                }
+                else if (!tagApprove && finalStatus == statusEnum.APPROVED_ADMIN) { //If the user is trying to approve the announcement and they cannot approve its tags.
+                    errorSend(errorEnum.TAG_APPROVE_FORBIDDEN, res);
+                    return;
+                }
+                else if (!tagApply) { //If they are trying to apply tags that they shoukdn't be able to. 
+                    errorSend(errorEnum.TAG_APPLY_FORBIDDEN, res);
+                }
+                else if(!isAdmin && finalStatus == statusEnum.APPROVED_ADMIN) { //User isn't an admin and they are trying to add the admin approved rank. This also catches if a user other than an admin is trying to edit an announcement while its approved.
+                    errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
+                    return;
+                }
+                else if (!isAdmin && finalStatus == statusEnum.REJECTED_ADMIN) { // User isn't an admin and they are trying to reject the announcement as an admin,
+                    errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEM, res);
+                    return;
+                }
+                else if (!isAdmin && !isCreator) { // User isn't an admin, but they are trying to edit someone else's announcement. Or an announcement created by a student other than their parent.
+                    errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
+                    return;
+                }
+                else if (userRank <= rankEnum.RANK_TEACHER && finalStatus == statusEnum.REMOVED_STUDENT) {// The user is a teacher or admin but is trying to say that the announcement was removed by a student.
+                    errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
+                    return;
+                }
+                else if (userRank > rankEnum.RANK_TEACHER && finalStatus == statusEnum.APPROVED_TEACHER) { // A student or lower user is trying to impersonate a teacher.
+                    errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
+                    return;
+                }
+                else if (userRank > rankEnum.RANK_TEACHER && finalStatus == statusEnum.REJECTED_TEACHER) { // A student or lower user is trying to impersonate a teacher.
+                    errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
+                    return;
+                }
+                else if (userRank > rankEnum.RANK_TEACHER && finalStatus == statusEnum.REMOVED_TEACHER) { // A student or lower user is trying to impersonate a teacher.
+                    errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
+                    return;
+                }
+                else if (!isCreator && originalStatus == statusEnum.REMOVED_STUDENT) { // The user is not the creator and is trying to edit an announcement that has been removed by a student.
+                    errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FORBIDDEN, res);
+                    return;
+                }
+                else {
+                    next(); // We need to define a next. (Basically implement this as middleware.)
+                }
+
+                /* if (isAdmin && isCreator && finalStatus != statusEnum.APPROVED_ADMIN) { // An admin is editing their own announcement, but not approving it. Approving it requires testing their rank against the tag's ranks.
+                    next();
+                }
+                else if (isAdmin && !isCreator && sufficientRank && ()) // An admin is trying to edit another user's announcement and their rank is higher than the other user's. As always, its not approval. */
+
+
+                /* switch (permissionsCase) {
+                    // Cases for admin editing their own announcement.
+                    case caseObjectGenerator(true, true, true, true, true, statusEnum.APPROVED_ADMIN, true): // The user is an admin and editing their own announcement. Let them do what they want. (Errors with tag assignment can be handled later.) In this case they are trying to approve their own announcement. 
+                    case caseObjectGenerator(true, true, true, true, true, statusEnum.PENDING_ADMIN, true): // User is an admin and editing own announcement, they are trying to resubmit it for reapproval. Not sure why they would, but OK.
+                    case caseObjectGenerator(true, true, true, true, true, statusEnum.REMOVED_TEACHER, true): // User is an admin and editing own announcement. They are trying to remove an announcement from circulation.
+                    case caseObjectGenerator(true, true, true, true, true, statusEnum.REJECTED_ADMIN, true): // User is an admin and editing own announcenemt. They are trying to reject their own announcement. Not sure why, but OK.
+
+                    //Cases for admins editing announcements created by users other than their own.
+                    case caseObjectGenerator(true, false, true, true, true, statusEnum.PENDING_ADMIN, true): //User is trying to 
+                    case caseObjectGenerator(true, false, true, true, true, statusEnum.APPROVED_ADMIN, true):
+                    case caseObjectGenerator():
+
+                    default:
+                        errorSend(errorEnum.ANNOUNCEMENT_UPDATE_FAILURE);
+                        return;
+                } */
+                
+            });
+
 
 
         });

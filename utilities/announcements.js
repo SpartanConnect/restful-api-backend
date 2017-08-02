@@ -202,6 +202,10 @@ exports.updateTags = (id, tags) => {
     });
 };
 
+exports.announcementUpdateHandler = (announcementModifications, tagModifications) => {
+
+};
+
 exports.updateAnnouncement = (id, title, description, startDate, endDate, adminId, status) => {
     let statement = 'UPDATE announcements SET ';
     let statementParameters = {};
