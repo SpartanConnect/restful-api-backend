@@ -313,7 +313,15 @@ function announcementSubmitHandler2 (req, res) {
                  */
                 var tagApply = true;
 
-                if allTagsInfo
+                //allTagsInfo[0].forEach((tagObject); 
+                for (let tagObject in allTagsInfo[0]){
+                    if (userRank > tagObject.minUserLevelRequest)
+                        tagApprove = false;
+                    if (userRank > tagObject.minUserLevelRequest) {
+                        tagApply = false;
+                        break;
+                    }
+                }
 
                 //Finally, we should be sure that the user has submitted some new data for the database to update. Now we can have fun with the actual permissions cases! 😒
 
@@ -364,7 +372,8 @@ function announcementSubmitHandler2 (req, res) {
                     return;
                 }
                 else {
-                    next(); // We need to define a next. (Basically implement this as middleware.)
+                    // We need to define a next. (Basically implement this as middleware.) 
+                    next(); // eslint-disable-line no-undef 
                 }
 
                 /* if (isAdmin && isCreator && finalStatus != statusEnum.APPROVED_ADMIN) { // An admin is editing their own announcement, but not approving it. Approving it requires testing their rank against the tag's ranks.
@@ -391,9 +400,6 @@ function announcementSubmitHandler2 (req, res) {
                 } */
                 
             });
-
-
-
         });
     }
 }
