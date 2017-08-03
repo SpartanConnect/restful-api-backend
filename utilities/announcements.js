@@ -124,6 +124,9 @@ exports.createAnnouncement = (title, description, creatorId, startDate, endDate,
     });
 };
 
+/**
+ * **DEPRECATED DO NOT USE**
+ */
 exports.createTags = (id, tags) => {
     console.log('tag creation hit');
     let tagCreateQueryStatement = 'INSERT INTO announcements_tags (announcementId, tagId) VALUES ';
@@ -324,10 +327,12 @@ exports.announcementUpdateHandler = (announcementId, announcementModifications, 
         contentUpdateQuery = database.query(statement+' WHERE id = :id;', parameters); //Perform the query to update the content of the announcement and add it as a variable.
     }
     if (tagModifications.deleteTags.size != 0) {
+        console.log('going to delete some tags;');
         tagDeleteQuery = deleteTags(announcementId, Array.from(tagModifications.deleteTags)); // Perform the query to delete the tags from the database.
     }
 
     if (tagModifications.applyTags.size != 0) {
+        console.log('going to apply some tags');
         tagApplyQuery = applyTags(announcementId,Array.from(tagModifications.applyTags));
     }
 
