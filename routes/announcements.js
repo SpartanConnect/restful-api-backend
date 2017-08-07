@@ -273,7 +273,7 @@ function announcementSubmitHandler2 (req, res) {
             var updateEndDate = false;
 
             //Now that we have the starting values for these parameters, we need to make sure that we only are trying to update the values that have actually changed. 
-            console.log(updateContent);
+            //console.log(updateContent);
             if (updateContent) {
                 if (typeof req.body.title != 'undefined' && req.body.title != announcementObject.title) {//Is the title of the submitted data is defined, we should compare it to the current value.
                     updateTitle = true;
@@ -287,8 +287,8 @@ function announcementSubmitHandler2 (req, res) {
                     updateEndDate = true;
             }
 
-            console.log('This is what the user submitted as a title: ' + req.body.title);
-            console.log('This is what was in the database: ' + announcementObject.title);
+            //console.log('This is what the user submitted as a title: ' + req.body.title);
+            //console.log('This is what was in the database: ' + announcementObject.title);
 
             // Update updateContent to ensure that it actually represents wheteher or not the the values were actually changed.
             updateContent = updateTitle || updateDescription || updateStartDate || updateEndDate;

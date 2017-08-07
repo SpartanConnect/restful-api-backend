@@ -1,4 +1,4 @@
-var verbosity = 3;
+var verbosity = process.env.VERBOSITY || 1;
 
 /**
  * A function that prints out an error depending on the specified verbosity level.
