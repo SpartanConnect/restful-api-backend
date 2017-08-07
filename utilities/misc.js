@@ -1,11 +1,11 @@
-var verbosity = 1;
+var verbosity = 3;
 
 /**
  * A function that prints out an error depending on the specified verbosity level.
  * @param {string} message The message that is printed to the console (as an error)
  * @param {number} verbosityLevel A number indicating the level of verbosity that the statement should begin to be printed at.
  */
-module.exports.error = (message, verbosityLevel) => {
+module.exports.e = (message, verbosityLevel) => {
     if (verbosity >= verbosityLevel) {
         console.error(message);
     }
@@ -16,7 +16,7 @@ module.exports.error = (message, verbosityLevel) => {
  * @param {string} message The message that is printed to the console (as a log)
  * @param {number} verbosityLevel A number indicating the level of verbosity that the statement should begin to be printed at.
  */
-module.exports.log = (message, verbosityLevel) => {
+module.exports.l = (message, verbosityLevel) => {
     if (verbosity >= verbosityLevel) {
         console.log(message);
     }
@@ -27,7 +27,7 @@ module.exports.log = (message, verbosityLevel) => {
  * @param {string} message The message that is printed to the console (as info)
  * @param {number} verbosityLevel A number indicating the level of verbosity that the statement should begin to be printed at.
  */
-module.exports.info = (message, verbosityLevel) => {
+module.exports.i = (message, verbosityLevel) => {
     if (verbosity >= verbosityLevel) {
         console.info(message);
     }
@@ -38,7 +38,7 @@ module.exports.info = (message, verbosityLevel) => {
  * @param {string} message The message that is printed to the console (as a warning)
  * @param {number} verbosityLevel A number indicating the level of verbosity that the statement should begin to be printed at.
  */
-module.exports.warn = (message, verbosityLevel) => {
+module.exports.w = (message, verbosityLevel) => {
     if (verbosity >= verbosityLevel) {
         console.warn(message);
     }

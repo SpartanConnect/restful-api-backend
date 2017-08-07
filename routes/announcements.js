@@ -10,6 +10,7 @@ var dbUtility = require('./../utilities/database');
 var errorSend = require('../utilities/errors').send;
 var enums = require('../utilities/enums'); //eslint-disable-line spellcheck/spell-checker
 var tagUtilities = require('../utilities/tags');
+var c = require('../utilities/misc');
 
 var errorEnum = enums.errors;
 var rankEnum = enums.users;
@@ -46,8 +47,11 @@ function announcementRequestHandler (req, res) {
  * @param {Object} res The response object from the HTTP(S) route. 
  */
 function announcementSubmitHandler2 (req, res) {
-    console.log('hit the submit handler');
+    
     if (typeof req.params.id !== 'undefined') {
+        //TODO: Add data validation for req.params.id!
+        c.i('The user has passed a value for the announcement id in the URL.', 1);
+        c.i('This is what the user entered for the request body: ' + req.body, 2);
         //The user wants to edit an announcement. Fantastic. 😒
         
         //Define varaibles for request catergorazation.
@@ -95,10 +99,14 @@ function announcementSubmitHandler2 (req, res) {
         var sufficientRank;
 
         // Determine whether or not the user is an admin.
-        if (req.user.rank <= rankEnum.RANK_ADMIN)
+        if (req.user.rank <= rankEnum.RANK_ADMIN) {
             isAdmin = true;
-        else
+            c.i('The user\' rank is ' + req.user.rank + '. Therefore they are an admin.', 2);
+        }   
+        else {
             isAdmin = false;
+            c.i('The user\'s rank is ' + req.user.rank + '. Therefore they are NOT an admin.', 2);
+        }
 
         // Determine whether or not the user is requesting to change the content of the announcement.
         // This needs to be checked 
@@ -107,39 +115,76 @@ function announcementSubmitHandler2 (req, res) {
             typeof req.body.startDate != 'undefined' ||
             typeof req.body.endDate != 'undefined') {
             updateContent = true;
-            console.log('there is content to update');
+            c.i('The user has submitted either a title, description, startDate, or endDate. Thus updateContent is true. The values have not been checked against the values in the database to ensure that they have actually changed.', 2);
         }
         else {
             updateContent = false;
-            console.log('there are not values to update');
+            c.i('The user not submitted any content values to update. Therefore updateContent is false.', 2);
         }
-
         // Determine whether or not the user is requesting to change the tags on the announcement.
         // This needs to be checked later to determine whether or not the tag list actually changed.
-        // TODO: This also needs to iterate through the tags to ensure that all tags that are attempting to be applied have IDs.
+        // TODO: This also needs to iterate through the tags to ensure that all tags that are attempting to be applied have IDs. DONE 2017/08/03
         if (typeof req.body.tags != 'undefined') { //We know that there is a tags object.
-            if (req.body.tags.length > 0) { //Making sure that the tag objet has objects in it (its length is >0)
-                req.body.tags.forEach((tagObject) => {
-                    if (typeof tagObject.id == 'undefined') // If the if for any tag object is undefined, throw an error.
-                        errorSend(errorEnum.TAG_APPLY_INVALID, res); // Throw TAG_APPLY_INVALID error. Not sure if this is the rignt one, however.
-                });
+            c.i('A \'tags\' object has been submitted. The user seems to want to update the tags on the announcement. However, the tags have not been checked against the database to ensure the values have actually changed.', 2);
+            if (Array.isArray(req.body.tags)) {
+                c.i('The \'tags\' object is an array.', 3);
+                if (req.body.tags.length > 0) { //Making sure that the tag objet has objects in it (its length is >0)
+                    c.i('The \'tags\' array is longer than 0 elements long.', 3);
+                    req.body.tags.forEach((tagObject, i) => {
+                        c.i('Checking tag #' + ( i + 1 ), 3);
+                        if (typeof tagObject.id == 'undefined') { // If the if for any tag object is undefined, throw an error.
+                            c.w('Tag #' + ( i + 1 ) + ' has an undefined (non-existent) id. Throwing TAG_UPDATE_INVALID.', 2);
+                            errorSend(errorEnum.TAG_UPDATE_INVALID, res); // Throw TAG_UPDATE_INVALID error. Not sure if this is the rignt one, however.
+                            return;
+                        }
+                        if (isNaN(tagObject.id)) {
+                            c.w('Tag #' + ( i + 1 ) + 'has an id that isn\'t a number. Throwing TAG_UPDATE_INVALID.', 2);
+                            errorSend(errorEnum.TAG_UPDATE_INVALID, res);
+                            return;
+                        }
+                        if (!Number.isInteger(parseFloat(tagObject.id))) { // Use parseFloat instead of parseInt to avoid undesired rounding.
+                            c.w('Tag #' + ( i + 1 ) + ' has an id that is a number but not an integer. Throwing TAG_UPDATE_INVALID.', 2);
+                            errorSend(errorEnum.TAG_UPDATE_INVALID, res);
+                            return;
+                        }
+                        if (!Math.sign(parseFloat(tagObject.id)) == 1) { // Math.sign() might only be necessary. It seems to parseInt and throw NaN. Only thing it doesn't do is see if the value is a integer or not.
+                            c.w('Tag #' + ( i + 1) + 'has a negative or zero tag id. Throwing TAG_UPDATE_INVALID.', 2);
+                            errorSend(errorEnum.TAG_UPDATE_INVALID, res);
+                            return;
+                        }
+                        c.i('Tag #' + ( i + 1 ) + ' has a positive integer id.', 3);
+                    });
+                    updateTags = true;
+                    c.i('All of the submitted tags objects in the array have valid, integer id.', 2);
+                    c.i('Therefore, updateTags is true.', 2);
+                }
+                else {
+                    c.w('There is a tag array present, but it is empty.', 3);
+                    updateTags = false; // The tag object is present but there are no elements in it. //QUESTION: Do I throw an error for this?
+                }
             }
-            else
-                updateTags = false; // The tag object is present but there are no elements in it.
+            else {
+                c.w('There is a tag object present, but it isn\'t an array.', 3);
+
+            }
         }
-        else // The tag object isn't present.
+        else { // The tag object isn't present.
+            c.i('No tag object exists in the user\'s input. Therefore updateTags is false.', 2);
             updateTags = false;
-
+        }
         // Is the status being sent? This needs to be checked later to see if the status is actually changed from the old one.
-        if (typeof req.body.status != 'undefined')
+        if (typeof req.body.status != 'undefined') {
             updateStatus = true;
-        else
+            c.i('A status has been provided. However, it has not been checked against database. Therefore updateStatus is true for now.', 2);
+        }
+        else {
             updateStatus = false;
-
+            c.i('No status has been defined. Therefore updateStatus is not true.', 2);
+        }
         //If no body content, tag data, nor status is being sent, there is nothing to update and we should thrown an error.
         if (updateContent == false && updateTags == false && updateStatus == false) {
             errorSend(errorEnum.ANNOUNCEMENT_UPDATE_EMPTY, res);
-            console.log('caught by empty catch');
+            c.w('The variables updateContent, updateTags, and updateStatus are all false. Therefore the user has not submitted any values to be updated. Throw an ANNOUNCEMENT_UPDATE_EMPTY error.', 2  );
             return;
         }
         console.log('Got past empty update catch');

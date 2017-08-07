@@ -85,7 +85,7 @@ exports.generateFilledUser = function(gid, name, email, profileUrl, callback) {
         email: email,
         gid: gid,
         profileUrl: profileUrl,
-        role: exports.roles.ROLE_UNAPPROVED
+        role: enums.users.RANK_UNAPPROVED
     }).then((data) => {
         callback(data.affectedRows);
     });
