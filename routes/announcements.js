@@ -242,17 +242,25 @@ function announcementSubmitHandler2 (req, res) {
                 c.i('[routes/announcements/announcementSubmitHandler2] The user is not the creator of the announcement.', 3);
             }
             // Determine the final status of the announcement after the submitted changes.
-            if (updateStatus) // If the status has been submitted, then the final status after applying the submitted changes would be read from the request object.
+            c.i('[routes/announcements/announcementSubmitHandler2] Determining final status.', 2);
+            if (updateStatus) { // If the status has been submitted, then the final status after applying the submitted changes would be read from the request object.
                 finalStatus = req.body.status;
-            else //If the status has not been submitted, then it would remain the same as it was at first.
+                c.i('[routes/announcements/announcementSubmitHandler2] The final status has been set to the status that was submitted since \'updateStatus\' is ' + updateStatus, 3);
+            }
+            else { //If the status has not been submitted, then it would remain the same as it was at first.
                 finalStatus = announcementObject.status;
-
+                c.i('[routes/announcements/announcementSubmitHandler2] The final status has been set to the status that was originally in the database since \'updateStatus\' is ' + updateStatus, 3);
+            }
             //We need to compare the creator and editor's ranks to determine if the editopr's rank is sufficient to edit the announcement, in certain cases.
-            if (req.user.rank <= announcementObject.creator.rank)
+            c.i('[routes/announcements/announcementSubmitHandler2] Submitter rank is being checked against creator rank.', 2);
+            if (req.user.rank <= announcementObject.creator.rank) {
                 sufficientRank = true;
-            else
+                c.i('[routes/announcements/announcementSubmitHandler2] Submitter\'s rank is higher or equal to the creator\'s. Therefore, \'sufficientRank\' is ' + sufficientRank, 3);
+            }
+            else {
                 sufficientRank = false;
-
+                c.i('[routes/announcements/announcementSubmitHandler2] The submitter\'s rank is lower than the creator. Therefore, \'sufficientRank\' is ' + sufficientRank, 3);
+            }
             //Declare boring variables to use for determining updates to content.
             /**
              * A temporary boolean variable indicating whether or not the title has actually changed. Initialized to false.
@@ -278,16 +286,23 @@ function announcementSubmitHandler2 (req, res) {
             //Now that we have the starting values for these parameters, we need to make sure that we only are trying to update the values that have actually changed. 
             //console.log(updateContent);
             if (updateContent) {
+                c.i('[routes/announcements/announcementSubmitHandler2] Checking content updates against database.');
                 if (typeof req.body.title != 'undefined' && req.body.title != announcementObject.title) {//Is the title of the submitted data is defined, we should compare it to the current value.
                     updateTitle = true;
-                    console.log('updateTitle is true');
+                    c.i('[routes/announcements/announcementSubmitHandler2] The title has been updated. Therefore updateTitle is true.', 3);
                 }
-                if (typeof req.body.description != 'undefined' && req.body.description != announcementObject.description) //Testing for the description actually changing.
+                if (typeof req.body.description != 'undefined' && req.body.description != announcementObject.description) { //Testing for the description actually changing.
                     updateDescription = true;
-                if (typeof req.body.startDate != 'undefined' && req.body.startDate != announcementObject.startDate) // Testing for the start date changing
+                    c.i('[routes/announcements/announcementSubmitHandler2] The description has been updated. Therefore updateDescription is true.', 3);
+                }
+                if (typeof req.body.startDate != 'undefined' && req.body.startDate != announcementObject.startDate)  { // Testing for the start date changing
                     updateStartDate = true;
-                if (typeof req.body.endDate != 'undefined' && req.body.endDate != announcementObject.endDate) // Testing for the end date changing.
+                    c.i('[routes/announcements/announcementSubmitHandler2] The start date has been updated.', 3);
+                }
+                if (typeof req.body.endDate != 'undefined' && req.body.endDate != announcementObject.endDate) { // Testing for the end date changing.
                     updateEndDate = true;
+                    //Nick left off here. Pick up with console logging later. c.i();
+                }
             }
 
             //console.log('This is what the user submitted as a title: ' + req.body.title);
