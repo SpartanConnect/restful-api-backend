@@ -47,11 +47,11 @@ function announcementRequestHandler (req, res) {
  * @param {Object} res The response object from the HTTP(S) route. 
  */
 function announcementSubmitHandler2 (req, res) {
-    c.i('Route using announcementSubmitHandler2.', 1)
+    c.i('[routes/announcements/announcementSubmitHandler2] Route using announcementSubmitHandler2.', 1)
     if (typeof req.params.id !== 'undefined') {
         //TODO: Add data validation for req.params.id!
-        c.i('The user has passed a value for the announcement id in the URL.', 2);
-        c.i('This is what the user entered for the request body: ' + req.body, 3);
+        c.i('[routes/announcements/announcementSubmitHandler2] The user has passed a value for the announcement id in the URL.', 2);
+        c.i('[routes/announcements/announcementSubmitHandler2] This is what the user entered for the request body: ' + req.body, 3);
         //The user wants to edit an announcement. Fantastic. 😒
         
         //Define varaibles for request catergorazation.
@@ -102,105 +102,108 @@ function announcementSubmitHandler2 (req, res) {
         // Determine whether or not the user is an admin.
         if (req.user.rank <= rankEnum.RANK_ADMIN) {
             isAdmin = true;
-            c.i('The user\' rank is ' + req.user.rank + '. Therefore they are an admin.', 3);
+            c.i('[routes/announcements/announcementSubmitHandler2] The user\' rank is ' + req.user.rank + '. Therefore they are an admin.', 3);
         }   
         else {
             isAdmin = false;
-            c.i('The user\'s rank is ' + req.user.rank + '. Therefore they are NOT an admin.', 3);
+            c.i('[routes/announcements/announcementSubmitHandler2] The user\'s rank is ' + req.user.rank + '. Therefore they are NOT an admin.', 3);
         }
 
         // Determine whether or not the user is requesting to change the content of the announcement.
         // This needs to be checked 
-        c.i('Checking content submission.', 2);
+        c.i('[routes/announcements/announcementSubmitHandler2] Checking content submission.', 2);
         if (typeof req.body.title != 'undefined' ||
             typeof req.body.description != 'undefined' || 
             typeof req.body.startDate != 'undefined' ||
             typeof req.body.endDate != 'undefined') {
             updateContent = true;
-            c.i('The user has submitted either a title, description, startDate, or endDate. Thus updateContent is ' + updateContent + '. The values have not been checked against the values in the database to ensure that they have actually changed.', 3);
+            c.i('[routes/announcements/announcementSubmitHandler2] The user has submitted either a title, description, startDate, or endDate. Thus updateContent is ' + updateContent + '. The values have not been checked against the values in the database to ensure that they have actually changed.', 3);
         }
         else {
             updateContent = false;
-            c.i('The user not submitted any content values to update. Therefore updateContent is ' + updateContent + '.', 3);
+            c.i('[routes/announcements/announcementSubmitHandler2] The user not submitted any content values to update. Therefore updateContent is ' + updateContent + '.', 3);
         }
         // Determine whether or not the user is requesting to change the tags on the announcement.
         // This needs to be checked later to determine whether or not the tag list actually changed.
         // TODO: This also needs to iterate through the tags to ensure that all tags that are attempting to be applied have IDs. DONE 2017/08/03
-        c.i('Checking tag submission.', 2);
+        c.i('[routes/announcements/announcementSubmitHandler2] Checking tag submission.', 2);
         if (typeof req.body.tags != 'undefined') { //We know that there is a tags object.
-            c.i('A \'tags\' object has been submitted. The user seems to want to update the tags on the announcement. However, the tags have not been checked against the database to ensure the values have actually changed.', 3);
-            c.i('Attempting to check the submitted tags.', 2);
+            c.i('[routes/announcements/announcementSubmitHandler2] A \'tags\' object has been submitted. The user seems to want to update the tags on the announcement. However, the tags have not been checked against the database to ensure the values have actually changed.', 3);
+            c.i('[routes/announcements/announcementSubmitHandler2] Attempting to check the submitted tags.', 2);
             if (Array.isArray(req.body.tags)) {
-                c.i('The \'tags\' object is an array.', 4);
+                c.i('[routes/announcements/announcementSubmitHandler2] The \'tags\' object is an array.', 4);
                 if (req.body.tags.length > 0) { //Making sure that the tag objet has objects in it (its length is >0)
-                    c.i('The \'tags\' array is longer than 0 elements long.', 4);
+                    c.i('[routes/announcements/announcementSubmitHandler2] The \'tags\' array is longer than 0 elements long.', 4);
                     req.body.tags.forEach((tagObject, i) => {
-                        c.i('Checking tag #' + ( i + 1 ), 4);
-                        c.i('The currently checked tag object is as follows: ' + tagObject, 4);
+                        c.i('[routes/announcements/announcementSubmitHandler2] Checking tag #' + ( i + 1 ), 4);
+                        c.i('[routes/announcements/announcementSubmitHandler2] The currently checked tag object is as follows: ', 4);
+                        c.i (tagObject, 4);
                         if (typeof tagObject.id == 'undefined') { // If the if for any tag object is undefined, throw an error.
-                            c.w('Tag #' + ( i + 1 ) + ' has an undefined (non-existent) id. Throwing TAG_UPDATE_INVALID.', 3);
+                            c.w('[routes/announcements/announcementSubmitHandler2] Tag #' + ( i + 1 ) + ' has an undefined (non-existent) id. Throwing TAG_UPDATE_INVALID.', 3);
                             errorSend(errorEnum.TAG_UPDATE_INVALID, res); // Throw TAG_UPDATE_INVALID error. Not sure if this is the rignt one, however.
                             return;
                         }
                         if (isNaN(tagObject.id)) {
-                            c.w('Tag #' + ( i + 1 ) + 'has an id that isn\'t a number. Throwing TAG_UPDATE_INVALID.', 3);
+                            c.w('[routes/announcements/announcementSubmitHandler2] Tag #' + ( i + 1 ) + 'has an id that isn\'t a number. Throwing TAG_UPDATE_INVALID.', 3);
                             errorSend(errorEnum.TAG_UPDATE_INVALID, res);
                             return;
                         }
                         if (!Number.isInteger(parseFloat(tagObject.id))) { // Use parseFloat instead of parseInt to avoid undesired rounding.
-                            c.w('Tag #' + ( i + 1 ) + ' has an id that is a number but not an integer. Throwing TAG_UPDATE_INVALID.', 3);
+                            c.w('[routes/announcements/announcementSubmitHandler2] Tag #' + ( i + 1 ) + ' has an id that is a number but not an integer. Throwing TAG_UPDATE_INVALID.', 3);
                             errorSend(errorEnum.TAG_UPDATE_INVALID, res);
                             return;
                         }
                         if (!Math.sign(parseFloat(tagObject.id)) == 1) { // Math.sign() might only be necessary. It seems to parseInt and throw NaN. Only thing it doesn't do is see if the value is a integer or not.
-                            c.w('Tag #' + ( i + 1) + 'has a negative or zero tag id. Throwing TAG_UPDATE_INVALID.', 3);
+                            c.w('[routes/announcements/announcementSubmitHandler2] Tag #' + ( i + 1) + 'has a negative or zero tag id. Throwing TAG_UPDATE_INVALID.', 3);
                             errorSend(errorEnum.TAG_UPDATE_INVALID, res);
                             return;
                         }
-                        c.i('Tag #' + ( i + 1 ) + ' has a positive integer id.', 4);
+                        c.i('[routes/announcements/announcementSubmitHandler2] Tag #' + ( i + 1 ) + ' has a positive integer id.', 4);
                     });
                     updateTags = true;
-                    c.i('All of the submitted tags objects in the array have valid, integer id.', 3);
-                    c.i('Therefore, updateTags is true.', 3);
+                    c.i('[routes/announcements/announcementSubmitHandler2] All of the submitted tags objects in the array have valid, integer id.', 3);
+                    c.i('[routes/announcements/announcementSubmitHandler2] Therefore, updateTags is true.', 3);
                 }
                 else {
-                    c.w('There is a tag array present, but it is empty.', 4);
+                    c.w('[routes/announcements/announcementSubmitHandler2] There is a tag array present, but it is empty.', 4);
                     updateTags = false; // The tag object is present but there are no elements in it. //QUESTION: Do I throw an error for this?
                 }
             }
             else {
-                c.w('There is a tag object present, but it isn\'t an array.', 4);
+                c.w('[routes/announcements/announcementSubmitHandler2] There is a tag object present, but it isn\'t an array.', 4);
 
             }
         }
         else { // The tag object isn't present.
-            c.i('No tag object exists in the user\'s input. Therefore updateTags is false.', 3);
+            c.i('[routes/announcements/announcementSubmitHandler2] No tag object exists in the user\'s input. Therefore updateTags is false.', 3);
             updateTags = false;
         }
         // Is the status being sent? This needs to be checked later to see if the status is actually changed from the old one.
-        c.i('Checking status submission.', 2);
+        c.i('[routes/announcements/announcementSubmitHandler2] Checking status submission.', 2);
         if (typeof req.body.status != 'undefined') {
             updateStatus = true;
-            c.i('A status has been provided. However, it has not been checked against database. Therefore updateStatus is true for now.', 3);
+            c.i('[routes/announcements/announcementSubmitHandler2] A status has been provided. However, it has not been checked against database. Therefore updateStatus is true for now.', 3);
         }
         else {
             updateStatus = false;
-            c.i('No status has been defined. Therefore updateStatus is not true.', 3);
+            c.i('[routes/announcements/announcementSubmitHandler2] No status has been defined. Therefore updateStatus is not true.', 3);
         }
         //If no body content, tag data, nor status is being sent, there is nothing to update and we should thrown an error.
         if (updateContent == false && updateTags == false && updateStatus == false) {
             errorSend(errorEnum.ANNOUNCEMENT_UPDATE_EMPTY, res);
-            c.w('The variables updateContent, updateTags, and updateStatus are all false. Therefore the user has not submitted any values to be updated. Throw an ANNOUNCEMENT_UPDATE_EMPTY error.', 3  );
+            c.w('[routes/announcements/announcementSubmitHandler2] The variables updateContent, updateTags, and updateStatus are all false. Therefore the user has not submitted any values to be updated. Throw an ANNOUNCEMENT_UPDATE_EMPTY error.', 3  );
             return;
         }
-        c.i('The updates to the announcement have made it past the first stage of redundancy verification. At least one field has been submitted with relevant information.', 3);
+        c.i('[routes/announcements/announcementSubmitHandler2] The updates to the announcement have made it past the first stage of redundancy verification. At least one field has been submitted with relevant information.', 3);
         // Now that we know that there is some data to update, we need more info about what is currently in the DB to determine whether or not to actually do anything.
         // Now we query the database to get more information on the creator, content and tags.
         announcements.getAnnouncementById(req.params.id).then((announcementInfo) => {
-            c.i('Database queried for announcement information.', 2)
+            c.i('[routes/announcements/announcementSubmitHandler2] Database queried for announcement information.', 2)
             // TODO: We need to ensure that there is announcement info that is returned. If none is returned, we need to throw an error.
-            c.i('The database has been queried for the announcement that the user wants to edit. This is the raw database output.\n' + announcementInfo, 4);
-            c.i('The database has been queried for the announcement that the user wants to edit. Its information in the database are as follows.\n' + announcementInfo[0], 3);
+            c.i('[routes/announcements/announcementSubmitHandler2] The database has been queried for the announcement that the user wants to edit. This is the raw database output.', 4);
+            c.i(announcementInfo, 4);
+            c.i('[routes/announcements/announcementSubmitHandler2] The database has been queried for the announcement that the user wants to edit. Its information in the database are as follows.', 3);
+            c.i(announcementInfo[0], 3);
             /**
              * A variable (hopefully) containing information about the announcement that is wanted to be edited.
              * This is basically just the first index of the `announcementInfo` variable that is output by the `getAnnouncementById` function.
@@ -229,14 +232,14 @@ function announcementSubmitHandler2 (req, res) {
             var originalStatus = announcementObject.status;
 
             // Determine whether or not the user is the creator of the announcement.
-            c.i('Checking the user\'s relationship to the announcement', 2);
+            c.i('[routes/announcements/announcementSubmitHandler2] Checking the user\'s relationship to the announcement', 2);
             if (announcementObject.creatorId == req.user.id) {
                 isCreator = true;
-                c.i('The user is the creator of the announcement.', 3)
+                c.i('[routes/announcements/announcementSubmitHandler2] The user is the creator of the announcement.', 3)
             }
             else {
                 isCreator = false;
-                c.i('The user is not the creator of the announcement.', 3);
+                c.i('[routes/announcements/announcementSubmitHandler2] The user is not the creator of the announcement.', 3);
             }
             // Determine the final status of the announcement after the submitted changes.
             if (updateStatus) // If the status has been submitted, then the final status after applying the submitted changes would be read from the request object.
@@ -293,7 +296,7 @@ function announcementSubmitHandler2 (req, res) {
             // Update updateContent to ensure that it actually represents wheteher or not the the values were actually changed.
             updateContent = updateTitle || updateDescription || updateStartDate || updateEndDate;
 
-            console.log('updateContent is ' + updateContent);
+            //console.log('updateContent is ' + updateContent);
 
             // Check if the submitted status is actually different from the one that is already in the database.
             if (updateStatus)
@@ -306,7 +309,7 @@ function announcementSubmitHandler2 (req, res) {
              * @readonly
              */
             var currentTags = new Set();
-            /**
+            /** 
              * `deleteTags` is a set of tagId's that should be deleted to complete the query.
              * 
              * @var {Set} deleteTags
