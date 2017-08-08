@@ -29,7 +29,8 @@ db.query("SELECT * FROM expo_notifications").then((users) => {
                 to: users[j + (i*100) - 1]['token'],
                 sound: "default",
                 body: "Good morning Spartans and here are your announcements!",
-                title: "Daily Report"
+                title: "Daily Report",
+                badge: 0
             });
             if (j + (i*100) >= users.length) {
                 console.log("[notify:sort] Finished sorting users from %d to %d. Total length of set: %d", i * 100 + 1, (i + 1) * 100, expoData[i].length);
