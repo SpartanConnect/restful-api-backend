@@ -64,6 +64,18 @@ app.use((req, res, next) => {
     });
     return next();
 });
+app.use((err, req, res, next) => {
+    if (err.code !== 'EBADCSRFTOKEN') return next(err);
+    else if (req.method === "PUT") {
+        next();
+    } else {
+        res.status(403);
+        res.json({
+            success: false,
+            reason: "Invalid attempt at unauthorized external request"
+        });
+    }
+})
 app.use(helmet());
 
 // --- Route API calls here! ---
@@ -77,7 +89,15 @@ app.use('/docs', function(req, res, next) {
     res.status(200).redirect('https://spartanconnect.github.io/sc-readthedocs/');
 })
 app.use('*', function(req, res, next) {
-    res.status(404).redirect('/docs');
+    if (req.get('content-type') === 'application/json') {
+        res.status(404);
+        res.json({
+            success: false,
+            reason: "Resource not found."
+        });
+    } else {
+        res.status(404).redirect('/docs');
+    }
 });
 
 
