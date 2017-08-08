@@ -119,7 +119,7 @@ function userSubmitHandler(req, res) {
     }
 }
 
-router.post('/users/hook-push/token', (req, res) => {
+router.put('/users/hook-push/token', (req, res) => {
     // use req.body to get data
     if (!req.body.token) {
         res.json({
