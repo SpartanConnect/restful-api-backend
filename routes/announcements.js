@@ -454,7 +454,7 @@ function announcementSubmitHandler2 (req, res) {
                     return;
                 }
                 else {
-                    announcements.announcementUpdateHandler(req.params.id, {title:req.body.title, description:req.body.description, startDate:req.body.startDate, endDate: req.body.endDate, status: req.body.status, adminId: req.user.id}, {applyTags:applyTags, deleteTags:deleteTags});
+                    announcements.announcementUpdateHandler(req.params.id, {title:req.body.title, description:req.body.description, startDate:req.body.startDate, endDate: req.body.endDate, status: req.body.status, adminId: req.user.id}, {applyTags:applyTags, deleteTags:deleteTags}, req.body.reason);
                     // We need to define a next. (Basically implement this as middleware.) 
                     //next(); // eslint-disable-line no-undef 
                 }
