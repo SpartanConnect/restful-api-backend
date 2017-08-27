@@ -2,6 +2,8 @@ var database = require('./database');
 var users = require('./users');
 var events = require('./events');
 
+var emailUtilities = require('./emails');
+
 // Getter
 exports.getAnnouncements = function(id, status, startDate, endDate, tagId, creatorId, adminId) {
     var statement = 'SELECT id FROM announcements';
@@ -267,9 +269,10 @@ exports.updateTags = (id, tags) => {
  * @param {number} announcementId A variable which represents the ID of the announcement to be updated.
  * @param {announcementModifications} announcementModifications
  * @param {tagModifications} tagModifications
+ * @param {string} rejectionReason A string passed in for rejected announcements that is used when sending emails to the original creators.
  * @returns {updateResult}
  */
-exports.announcementUpdateHandler = (announcementId, announcementModifications, tagModifications) => {
+exports.announcementUpdateHandler = (announcementId, announcementModifications, tagModifications, rejectionReason) => {
     // Define the promise variables so that we don't' get undefined errors in our Promise.all
     /**
      * The query that will be resolved when the announcement has been edited. It will be undefined 
@@ -321,6 +324,13 @@ exports.announcementUpdateHandler = (announcementId, announcementModifications, 
             });
         }
 
+        // Send the email to the creator of the announcement.
+        if (typeof announcementModifications.status != 'undefined') {
+            if (announcementModifications.status == 2) {
+                emailUtilities.sendDenialEmail(announcementId, rejectionReason);
+            }
+        }
+
         //Make sure that the Id is included in the query.
         parameters.id = announcementId;
 
@@ -342,7 +352,7 @@ exports.announcementUpdateHandler = (announcementId, announcementModifications, 
 /**
  * **DEPRECATED DO NOT USE**
  */
-exports.updateAnnouncement = (id, title, description, startDate, endDate, adminId, status) => {
+exports.updateAnnouncement = (id, title, description, startDate, endDate, adminId, status, rejectionReason) => {
     let statement = 'UPDATE announcements SET ';
     let statementParameters = {};
 
@@ -351,7 +361,12 @@ exports.updateAnnouncement = (id, title, description, startDate, endDate, adminI
     if(typeof startDate != 'undefined') { statementParameters.startDate = startDate; }
     if(typeof endDate != 'undefined') { statementParameters.endDate = endDate; }
     if(typeof adminId != 'undefined') { statementParameters.adminId = adminId; }
-    if(typeof status != 'undefined') { statementParameters.status = status; }
+    if(typeof status != 'undefined') {
+        statementParameters.status = status;
+        if (status == 2) {
+            emailUtilities.sendDenialEmail(id, rejectionReason);
+        }
+    }
     if(typeof status != 'undefined' && status == 1) {statementParameters.timeApproved = new Date();}
 
     if(Object.keys(statementParameters).length != 0) {

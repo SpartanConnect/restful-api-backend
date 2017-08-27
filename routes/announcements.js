@@ -47,7 +47,7 @@ function announcementRequestHandler (req, res) {
  * @param {Object} res The response object from the HTTP(S) route. 
  */
 function announcementSubmitHandler2 (req, res) {
-    c.i('[routes/announcements/announcementSubmitHandler2] Route using announcementSubmitHandler2.', 1)
+    c.i('[routes/announcements/announcementSubmitHandler2] Route using announcementSubmitHandler2.', 1);
     if (typeof req.params.id !== 'undefined') {
         //TODO: Add data validation for req.params.id!
         c.i('[routes/announcements/announcementSubmitHandler2] The user has passed a value for the announcement id in the URL.', 2);
@@ -198,7 +198,7 @@ function announcementSubmitHandler2 (req, res) {
         // Now that we know that there is some data to update, we need more info about what is currently in the DB to determine whether or not to actually do anything.
         // Now we query the database to get more information on the creator, content and tags.
         announcements.getAnnouncementById(req.params.id).then((announcementInfo) => {
-            c.i('[routes/announcements/announcementSubmitHandler2] Database queried for announcement information.', 2)
+            c.i('[routes/announcements/announcementSubmitHandler2] Database queried for announcement information.', 2);
             // TODO: We need to ensure that there is announcement info that is returned. If none is returned, we need to throw an error.
             c.i('[routes/announcements/announcementSubmitHandler2] The database has been queried for the announcement that the user wants to edit. This is the raw database output.', 4);
             c.i(announcementInfo, 4);
@@ -235,7 +235,7 @@ function announcementSubmitHandler2 (req, res) {
             c.i('[routes/announcements/announcementSubmitHandler2] Checking the user\'s relationship to the announcement', 2);
             if (announcementObject.creatorId == req.user.id) {
                 isCreator = true;
-                c.i('[routes/announcements/announcementSubmitHandler2] The user is the creator of the announcement.', 3)
+                c.i('[routes/announcements/announcementSubmitHandler2] The user is the creator of the announcement.', 3);
             }
             else {
                 isCreator = false;
@@ -625,7 +625,8 @@ function announcementSubmitHandler (req, res) {
                                                                 req.body.endDate,
                                                                 req.body.adminId,
                                                                 req.body.status,
-                                                                req.body.tags).then((updateResult) => {
+                                                                req.body.tags,
+                                                                req.body.reason).then((updateResult) => {
                                     if (updateResult.affectedRows == 1) {
                                         res.json({'success':true});
                                         res.end();
@@ -660,8 +661,10 @@ router.get('/announcements/', announcementRequestHandler);
 router.post('/announcements/', authUtilities.verifyAuthenticated(), announcementSubmitHandler);
 
 router.get('/announcements/current', function (req, res) {
-    req.query.startDate = new Date();
-    req.query.endDate = new Date();
+    let todayDate = new Date();
+    todayDate.setHours(0,0,0,0);
+    req.query.startDate =todayDate;
+    req.query.endDate = todayDate;
     req.query.status = 1;
     announcementRequestHandler(req, res);
 });
