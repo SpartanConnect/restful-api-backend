@@ -18,7 +18,7 @@ console.log("[notify] Script has launched.");
 console.log("[notify:collect] Collecting information from data store.");
 
 // Scheduled to run every day on 8:00;
-db.query("SELECT * FROM expo_notifications").then((users) => {
+db.query("SELECT * FROM expo_notifications WHERE enableNotifs = true").then((users) => {
     console.log("[notify:collect] Collected data. There are currently %d users.", users.length);
     // Bundle the announcements by 100s.
     for (let i = 0; i <= Math.floor(users.length / 100); i++) {
@@ -51,7 +51,8 @@ db.query("SELECT * FROM expo_notifications").then((users) => {
             body: body
         }, (err, res, bd) => {
             console.log("[notify:post] Batch %d of %d completed.", index + 1, expoData.length);
-            if (index + 1 === expoData.length) {
+            console.log(res.body);
+	        if (index + 1 === expoData.length) {
                 console.log("[notify] Notifications have been delivered.");
                 process.exit();
             }
@@ -59,4 +60,3 @@ db.query("SELECT * FROM expo_notifications").then((users) => {
     }
 
 });
-
