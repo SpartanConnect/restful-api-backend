@@ -121,7 +121,7 @@ function userSubmitHandler(req, res) {
 
 router.put('/users/hook-push/token', (req, res) => {
     // use req.body to get data
-    if (!req.body.token.value || !req.body.token.enableNotifs) {
+    if (!req.body.token.value || (req.body.token.enableNotifs == null || req.body.token.enableNotifs == undefined)) {
         res.json({
             success: false,
             reason: 'Insufficient data to set up a hook.'
@@ -146,7 +146,7 @@ router.put('/users/hook-push/token', (req, res) => {
                     res.end();
                 });
             } else {
-                    if (d[0].enableNotifs !== req.body.token.enableNotifs) {
+                    if ((d[0].enableNotifs === 1) !== req.body.token.enableNotifs) {
                         dbUtilities.query('UPDATE expo_notifications SET enableNotifs = :enableNotifs WHERE token = :token', {
                             token: req.body.token.value,
                             enableNotifs: req.body.token.enableNotifs
