@@ -121,19 +121,23 @@ function userSubmitHandler(req, res) {
 
 router.put('/users/hook-push/token', (req, res) => {
     // use req.body to get data
-    if (!req.body.token) {
+    if (!req.body.token.value || !req.body.token.enableNotifs) {
         res.json({
             success: false,
             reason: 'Insufficient data to set up a hook.'
         });
         res.end();
     } else {
+        // console.log("New token: ");
+        // console.dir(req.body);
         dbUtilities.query('SELECT * FROM expo_notifications WHERE token = :token', {
-            token: req.body.token
+            token: req.body.token.value
         }).then((d) => {
             if (!d.length) {
-                dbUtilities.query('INSERT INTO expo_notifications (token) VALUES (:token)', {
-                    token: req.body.token
+                let willNotify = (req.body.token.enableNotifs ? req.body.token.enableNotifs : false);
+                dbUtilities.query('INSERT INTO expo_notifications (token, enableNotifs) VALUES (:token, :enableNotifs)', {
+                    token: req.body.token.value,
+                    enableNotifs: willNotify
                 }).then((d) => {
                     res.json({
                         success: true,
@@ -142,14 +146,26 @@ router.put('/users/hook-push/token', (req, res) => {
                     res.end();
                 });
             } else {
-                res.json({
-                    success: true,
-                    reason: 'Already hooked.'
-                });
-                res.end();
+                    if (d[0].enableNotifs !== req.body.token.enableNotifs) {
+                        dbUtilities.query('UPDATE expo_notifications SET enableNotifs = :enableNotifs WHERE token = :token', {
+                            token: req.body.token.value,
+                            enableNotifs: req.body.token.enableNotifs
+                        }).then((d) => {
+                            res.json({
+                                success: true,
+                                reason: 'Updated hook, persist to data store.'
+                            });
+                            res.end();
+                        });
+                    } else {
+                        res.json({
+                            success: true,
+                            reason: 'Already hooked.'
+                        });
+                        res.end();
+		            }
             }
         })
-        
     }
 });
 
