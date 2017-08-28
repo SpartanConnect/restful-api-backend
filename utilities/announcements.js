@@ -368,7 +368,7 @@ exports.updateAnnouncement = (id, title, description, startDate, endDate, adminI
     if(typeof status != 'undefined') {
         statementParameters.status = status;
         if (status == 2) {
-            outputPromiseArray.push(emailUtilities.sendDenialEmail(id, rejectionReason));
+            outputPromiseArray[1] = (emailUtilities.sendDenialEmail(id, rejectionReason));
         }
     }
     if(typeof status != 'undefined' && status == 1) {statementParameters.timeApproved = new Date();}
@@ -382,7 +382,7 @@ exports.updateAnnouncement = (id, title, description, startDate, endDate, adminI
 
     statementParameters.id = id;
 
-    outputPromiseArray.push(database.query(statement+' WHERE id = :id;',statementParameters));
+    outputPromiseArray[0] = (database.query(statement+' WHERE id = :id;',statementParameters));
     return outputPromiseArray;
 };
 
