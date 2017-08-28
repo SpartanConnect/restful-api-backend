@@ -369,14 +369,14 @@ function announcementSubmitHandler2 (req, res) {
                 });
 
                 //Now we need to make sure that the tags have actually changed. Do this by seeing if the apply and delete tag objects have lengths.
-                console.log(applyTags);
+                //console.log(applyTags);
                 if (applyTags.size == 0 && deleteTags.size == 0)
                     updateTags = false;
             }
 
 
             // Perform a similar check as above to not 'update' the database if nothing has changed.
-            console.log();
+            //console.log();
             
             if (updateContent == false && updateTags == false && updateStatus == false) {
                 errorSend(errorEnum.ANNOUNCEMENT_UPDATE_NO_CHANGES, res);
@@ -491,7 +491,7 @@ function announcementSubmitHandler (req, res) {
     if (typeof req.params.id === 'undefined') {
         //The id that is passed as a URL parameter is undefined (not provided) and thus the request is to create a new announcement
         if (req.user.rank <= 3) {
-            console.log('user has sufficient privileges');
+            //console.log('user has sufficient privileges');
             if (typeof req.body.title !== 'undefined' && 
                 typeof req.body.description !== 'undefined' && 
                 /* typeof req.body.creatorId !== 'undefined' &&  */
@@ -618,15 +618,15 @@ function announcementSubmitHandler (req, res) {
                                 typeof req.body.status === 'undefined')) {
                                 //user wants to update an announcement
                                 /* eslint-disable indent */
-                                announcements.updateAnnouncement(req.params.id,
-                                                                req.body.title,
-                                                                req.body.description,
-                                                                req.body.startDate,
-                                                                req.body.endDate,
-                                                                req.body.adminId,
-                                                                req.body.status,
-                                                                req.body.tags,
-                                                                req.body.reason).then((updateResult) => {
+                                Promise.all(announcements.updateAnnouncement(req.params.id,
+                                                               req.body.title,
+                                                               req.body.description,
+                                                               req.body.startDate,
+                                                               req.body.endDate,
+                                                               req.body.adminId,
+                                                               req.body.status,
+                                                               req.body.tags,
+                                                               req.body.reason)).then((updateResult) => {
                                     if (updateResult[0].affectedRows == 1) {
                                         res.json({'success':true});
                                         res.end();

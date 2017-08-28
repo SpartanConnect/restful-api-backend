@@ -130,11 +130,11 @@ exports.createAnnouncement = (title, description, creatorId, startDate, endDate,
  * **DEPRECATED DO NOT USE**
  */
 exports.createTags = (id, tags) => {
-    console.log('tag creation hit');
+    //console.log('tag creation hit');
     let tagCreateQueryStatement = 'INSERT INTO announcements_tags (announcementId, tagId) VALUES ';
     let tagCreateQueryStatementParameters = {};
-    console.log(id);
-    console.log(tags);
+    //console.log(id);
+    //console.log(tags);
     tags.forEach((tagObject, index) => {
         if (index !== 0) {
             tagCreateQueryStatement += ' , ';
@@ -142,8 +142,8 @@ exports.createTags = (id, tags) => {
         tagCreateQueryStatement += ('( :id, '+':tagId'+index+' )');
         tagCreateQueryStatementParameters['tagId'+index] = tagObject.id;
     });
-    console.log(tagCreateQueryStatement);
-    console.log(tagCreateQueryStatementParameters);
+    //console.log(tagCreateQueryStatement);
+    //console.log(tagCreateQueryStatementParameters);
 
     tagCreateQueryStatementParameters.id =id;
 
@@ -337,12 +337,12 @@ exports.announcementUpdateHandler = (announcementId, announcementModifications, 
         contentUpdateQuery = database.query(statement+' WHERE id = :id;', parameters); //Perform the query to update the content of the announcement and add it as a variable.
     }
     if (tagModifications.deleteTags.size != 0) {
-        console.log('going to delete some tags;');
+        //console.log('going to delete some tags;');
         tagDeleteQuery = deleteTags(announcementId, Array.from(tagModifications.deleteTags)); // Perform the query to delete the tags from the database.
     }
 
     if (tagModifications.applyTags.size != 0) {
-        console.log('going to apply some tags');
+        //console.log('going to apply some tags');
         tagApplyQuery = applyTags(announcementId,Array.from(tagModifications.applyTags));
     }
 
