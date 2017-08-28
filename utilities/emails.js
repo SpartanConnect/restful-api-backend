@@ -45,22 +45,25 @@ function generatePendingMessage(pendingAnnouncementArray, adminUserObject) {
 }
 
 exports.sendDenialEmail = function (announcementId, rejectionReason) {
-    fs.readFile('client_secret.json', function processClientSecrets(err, content) {
-        if (err) {
-            console.log('Error loading client secret file: ' + err);
-            return;
-        }
-        // Authorize a client with the loaded credentials, then call the
-        // Gmail API.
-        authorize(JSON.parse(content), (auth) => {
-            announcementUtilities.getAnnouncementById(announcementId).then((deniedAnnouncementObject) => {
-                var gmail = google.gmail('v1');
-                var request = gmail.users.messages.send({
-                    auth: auth,
-                    userId: 'me',
-                    resource: {
-                        raw: Base64.encodeURI(generateDenialMessage(deniedAnnouncementObject[0], deniedAnnouncementObject[0].creator, rejectionReason))
-                    }
+    return new Promise ((resolve) => {
+        fs.readFile('client_secret.json', function processClientSecrets(err, content) {
+            if (err) {
+                console.log('Error loading client secret file: ' + err);
+                return;
+            }
+            // Authorize a client with the loaded credentials, then call the
+            // Gmail API.
+            authorize(JSON.parse(content), (auth) => {
+                announcementUtilities.getAnnouncementById(announcementId).then((deniedAnnouncementObject) => {
+                    var gmail = google.gmail('v1');
+                    var request = gmail.users.messages.send({
+                        auth: auth,
+                        userId: 'me',
+                        resource: {
+                            raw: Base64.encodeURI(generateDenialMessage(deniedAnnouncementObject[0], deniedAnnouncementObject[0].creator, rejectionReason))
+                        }
+                    });
+                    resolve(true);
                 });
             });
         });
@@ -68,24 +71,27 @@ exports.sendDenialEmail = function (announcementId, rejectionReason) {
 };
 
 exports.sendPendingEmail = function (pendingAnnouncementArray, adminUserObject) {
-    fs.readFile('client_secret.json', function processClientSecrets(err, content) {
-        if (err) {
-            console.log('Error loading client secret file: ' + err);
-            return;
-        }
-        // Authorize a client with the loaded credentials, then call the
-        // Gmail API.
-        authorize(JSON.parse(content), (auth) => {
-            var gmail = google.gmail('v1');
-            var request = gmail.users.messages.send({
-                auth: auth,
-                userId: 'me',
-                resource: {
-                    raw: Base64.encodeURI(generatePendingMessage(pendingAnnouncementArray, adminUserObject))
-                }
+    return new Promise ((resolve) => {
+        fs.readFile('client_secret.json', function processClientSecrets(err, content) {
+            if (err) {
+                console.log('Error loading client secret file: ' + err);
+                return;
+            }
+            // Authorize a client with the loaded credentials, then call the
+            // Gmail API.
+            authorize(JSON.parse(content), (auth) => {
+                var gmail = google.gmail('v1');
+                var request = gmail.users.messages.send({
+                    auth: auth,
+                    userId: 'me',
+                    resource: {
+                        raw: Base64.encodeURI(generatePendingMessage(pendingAnnouncementArray, adminUserObject))
+                    }
+                });
+                resolve(true);
             });
         });
-    });
+    }); 
 };
 
 /**

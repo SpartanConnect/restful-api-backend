@@ -627,7 +627,7 @@ function announcementSubmitHandler (req, res) {
                                                                 req.body.status,
                                                                 req.body.tags,
                                                                 req.body.reason).then((updateResult) => {
-                                    if (updateResult.affectedRows == 1) {
+                                    if (updateResult[0].affectedRows == 1) {
                                         res.json({'success':true});
                                         res.end();
                                     }
@@ -680,7 +680,7 @@ router.get('/announcements/:announcementId/deadlines', (req, res) => {
     eventRoutes.eventRequestHandler (req, res);
 });
 
-router.post('/announcements/:id', authUtilities.verifyAuthenticated(), announcementSubmitHandler2);
+router.post('/announcements/:id', authUtilities.verifyAuthenticated(), announcementSubmitHandler);
 
 router.get('/announcements/:id', announcementRequestHandler);
 
