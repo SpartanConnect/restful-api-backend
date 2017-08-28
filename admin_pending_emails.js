@@ -15,7 +15,7 @@ Promise.all([announcementListQuery,adminListQuery]).then((announcementAdminInfoP
     /**
      * @type {Promise[]}
      */
-    var emailPromiseList;
+    var emailPromiseList = [];
     for (let i = 0; i < adminList.length; i++) {
         emailPromiseList.push(emailUtilities.sendPendingEmail(announcementList, adminList[i]));
     }
