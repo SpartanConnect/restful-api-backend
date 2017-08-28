@@ -625,7 +625,6 @@ function announcementSubmitHandler (req, res) {
                                                                req.body.endDate,
                                                                req.body.adminId,
                                                                req.body.status,
-                                                               req.body.tags,
                                                                req.body.reason)).then((updateResult) => {
                                     if (updateResult[0].affectedRows == 1) {
                                         res.json({'success':true});
