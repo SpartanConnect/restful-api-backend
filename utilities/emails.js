@@ -9,7 +9,7 @@ var announcementUtilities = require('./announcements');
 
 var SCOPES = ['https://www.googleapis.com/auth/gmail.send', 'https://www.googleapis.com/auth/gmail.compose', 'https://www.googleapis.com/auth/gmail.modify', 'https://mail.google.com/'];
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + '/.credentials/';
-var TOKEN_PATH = TOKEN_DIR + 'gmail-nodejs-quickstart.json';
+var TOKEN_PATH = TOKEN_DIR + 'gmail-nodejs-credentials.json';
 /* eslint-enable spellcheck/spell-checker */
 
 
