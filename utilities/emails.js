@@ -63,7 +63,7 @@ exports.sendDenialEmail = function (announcementId, rejectionReason) {
                             raw: Base64.encodeURI(generateDenialMessage(deniedAnnouncementObject[0], deniedAnnouncementObject[0].creator, rejectionReason))
                         }
                     });
-                    resolve(true);
+                    request.execute(resolve(true));
                 });
             });
         });
@@ -88,7 +88,7 @@ exports.sendPendingEmail = function (pendingAnnouncementArray, adminUserObject) 
                         raw: Base64.encodeURI(generatePendingMessage(pendingAnnouncementArray, adminUserObject))
                     }
                 });
-                resolve(true);
+                request.execute(resolve(true));
             });
         });
     }); 
