@@ -5,11 +5,13 @@ var eventUtilities = require('../utilities/events');
 
 function eventRequestHandler (req, res) {
     //console.log('hit router');
+    /* eslint-disable indent */
     eventUtilities.getEvents((req.query.id ? req.query.id : req.params.id),
                              req.query.type,
                              (req.query.announcementId ? req.query.announcementId : req.params.announcementId),
                              req.query.startTimestamp,
                              req.query.endTimestamp).then((eventResults) => {
+        /* eslint-enable indent */
         //console.log('completed get event function');
         //console.log('this should be the data returned', eventResults);
         if(typeof eventResults==='undefined') {

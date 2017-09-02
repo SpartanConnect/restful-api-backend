@@ -3,6 +3,14 @@ var path = require('path');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 var mysql = require('mysql');
+var helmet = require('helmet');
+var cookieParser = require('cookie-parser');
+var cookieSession = require('cookie-session');
+var csurf = require('csurf');
+var cors = require('cors');
+
+// Configure environment variables
+require('dotenv').config();
 
 // --- Sample Query ---
 // var announcementsUtility = require('./utilities/announcements.js');
@@ -16,7 +24,7 @@ var users = require('./routes/users');
 var tags = require('./routes/tags');
 var notifications = require('./routes/notifications');
 var events = require('./routes/events');
-
+var auth = require('./routes/auth');
 
 var app = express();
 
@@ -24,13 +32,74 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    optionsSuccessStatus: 200,
+    credentials: true
+}));
+app.use(cookieSession({
+    name: 'session',
+    maxAge: 3 * 24 * 60 * 60 * 1000,         // 3 days
+    secure: false,
+    httpOnly: true,
+    secret: process.env.COOKIE_SECRET,
+    keys: [process.env.COOKIE_SECRET],
+    domain: process.env.FRONTEND_BASE
+}));
+// Generate a secure _csrf token
+// This is not what we pass in from the Angular app, however.
+app.use(csurf({
+    cookie: {
+        domain: process.env.FRONTEND_BASE
+    }
+}));
+
+// Set XSRF-TOKEN cookie to a generated and valid csrf token
+// Workaround, but it works.
+app.use((req, res, next) => {
+    res.cookie("XSRF-TOKEN", req.csrfToken(), {
+        domain: process.env.FRONTEND_BASE,
+        maxAge: 3 * 24 * 60 * 60 * 1000
+    });
+    return next();
+});
+app.use((err, req, res, next) => {
+    if (err.code !== 'EBADCSRFTOKEN') return next(err);
+    else if (req.method === "PUT") {
+        next();
+    } else {
+        res.status(403);
+        res.json({
+            success: false,
+            reason: "Invalid attempt at unauthorized external request"
+        });
+    }
+})
+app.use(helmet());
 
 // --- Route API calls here! ---
+app.use('/api', auth);
 app.use('/api', announcements);
 app.use('/api', users);
 app.use('/api', tags);
 app.use('/api', notifications);
 app.use('/api', events);
+app.use('/docs', function(req, res, next) {
+    res.status(200).redirect('https://spartanconnect.github.io/sc-readthedocs/');
+})
+app.use('*', function(req, res, next) {
+    if (req.get('content-type') === 'application/json') {
+        res.status(404);
+        res.json({
+            success: false,
+            reason: "Resource not found."
+        });
+    } else {
+        res.status(404).redirect('/docs');
+    }
+});
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
