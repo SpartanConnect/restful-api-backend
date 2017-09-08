@@ -171,14 +171,14 @@ router.put('/users/hook-push/token', (req, res) => {
 
 router.get('/users/:creatorId/announcements', announcementRoutes.announcementRequestHandler);
 
-router.get('/users/:userId/notifications', notificationRoutes.notificationRequestHandler);
+router.get('/users/:userId/notifications', authUtilities.verifyAuthenticated(), notificationRoutes.notificationRequestHandler);
 
 router.post('/users/:id', authUtilities.verifyAuthenticated(), userSubmitHandler);
 
-router.get('/users/:id', userRequestHandler);
+router.get('/users/:id', authUtilities.verifyAuthenticated(), userRequestHandler);
 
 router.post('/users/', authUtilities.verifyAuthenticated(), userSubmitHandler);
 
-router.get('/users/', userRequestHandler);
+router.get('/users/', authUtilities.verifyAuthenticated(), userRequestHandler);
 
 module.exports = router;
