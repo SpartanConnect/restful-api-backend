@@ -147,9 +147,10 @@ router.put('/users/hook-push/token', (req, res) => {
                     res.end();
                 });
             } else {
-                if ((d[0].enableNotifs === 1) !== req.body.token.enableNotifs) {
-                    dbUtilities.query('UPDATE expo_notifications SET enableNotifs = :enableNotifs WHERE token = :token', { //eslint-disable-line spellcheck/spell-checker
+                if (((d[0].enableNotifs === 1) !== req.body.token.enableNotifs) || (d[0].ios == undefined || d[0].ios == null)) {
+                    dbUtilities.query('UPDATE expo_notifications SET enableNotifs = :enableNotifs , ios = :ios WHERE token = :token', { //eslint-disable-line spellcheck/spell-checker
                         token: req.body.token.value,
+                        ios: req.body.token.ios,
                         enableNotifs: req.body.token.enableNotifs
                     }).then((d) => {
                         res.json({
