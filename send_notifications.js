@@ -18,7 +18,7 @@ console.log("[notify] Script has launched.");
 console.log("[notify:collect] Collecting information from data store.");
 
 // Scheduled to run every day on 8:00;
-db.query("SELECT * FROM expo_notifications WHERE enableNotifs = true").then((users) => {
+db.query("SELECT * FROM expo_notifications WHERE enableNotifs = true AND ios=true;").then((users) => {
     console.log("[notify:collect] Collected data. There are currently %d users.", users.length);
     // Bundle the announcements by 100s.
     for (let i = 0; i <= Math.floor(users.length / 100); i++) {
